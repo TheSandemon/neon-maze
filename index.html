@@ -202,7 +202,7 @@
     <span>●</span> START &nbsp; <span>○</span> END<br>
     <span>·</span> SOLUTION
   </div>
-  <div id="hint">1-2: GEN ALGO &nbsp; 3-6: SOLVE &nbsp; P: PATH &nbsp; E: EXPORT &nbsp; R: RESET &nbsp; +/-: SPEED</div>
+  <div id="hint">1-2: GEN ALGO &nbsp; 3-6: SOLVE &nbsp; F: FINISH &nbsp; P: PATH &nbsp; E: EXPORT &nbsp; R: RESET &nbsp; +/-: SPEED</div>
   <div id="top-bar">
     <label><span>DIFFICULTY</span><input type="range" id="diffSlider" min="1" max="3" value="2" oninput="setDifficulty(this.value)"></label>
     <label><span>SPEED</span><input type="range" id="speedSlider" min="1" max="20" value="15" oninput="setSpeed(this.value)"></label>
@@ -223,6 +223,7 @@
     <div id="controls-row">
       <button class="btn" onclick="generate()">GENERATE</button>
       <button class="btn" onclick="finishGen()">FINISH</button>
+      <button class="btn" onclick="finishSolve()">FINISH SOLVE</button>
       <button class="btn" onclick="togglePath()">PATH</button>
       <button class="btn" onclick="exportMaze()">EXPORT</button>
     </div>
@@ -498,6 +499,34 @@ function finishGen() {
   let elapsed = ((performance.now() - genStartTime) / 1000).toFixed(1);
   document.getElementById('genTime').textContent = elapsed + 's';
   document.getElementById('cellCount').textContent = (COLS * ROWS) + '/' + (COLS * ROWS);
+  animRunning = false;
+  draw();
+}
+
+function finishSolve() {
+  if (solvePhase === 'idle' || solvePhase === 'done') return;
+  // Instant complete any solver
+  if (solveMode === 'astar') {
+    let state = window._solveState;
+    if (!state) { solvePhase = 'done'; return; }
+    while (state.openSet.length > 0) { if (!stepSolveAnim()) break; }
+  } else if (solveMode === 'bfs') {
+    let state = window._bfsState;
+    if (!state) { solvePhase = 'done'; return; }
+    while (state.queue.length > 0) { if (!stepSolveAnimBFS()) break; }
+  } else if (solveMode === 'dfs') {
+    let state = window._dfsState;
+    if (!state) { solvePhase = 'done'; return; }
+    while (state.stack.length > 0) { if (!stepSolveAnimDFS()) break; }
+  } else if (solveMode === 'dijkstra') {
+    let state = window._dijkstraState;
+    if (!state) { solvePhase = 'done'; return; }
+    while (state && !state.done) { if (!stepSolveAnimDijkstra()) break; }
+  }
+  solvePhase = 'done';
+  let elapsed = ((performance.now() - solveStartTime) / 1000).toFixed(2);
+  document.getElementById('solveTime').textContent = elapsed + 's';
+  document.getElementById('pathLen').textContent = solutionPath.length > 0 ? solutionPath.length + ' steps' : '—';
   animRunning = false;
   draw();
 }
@@ -880,6 +909,7 @@ document.addEventListener('keydown', (e) => {
   else if (e.key === 'p' || e.key === 'P') togglePath();
   else if (e.key === 'e' || e.key === 'E') exportMaze();
   else if (e.key === 'r' || e.key === 'R') { initMaze(); draw(); }
+  else if (e.key === 'f' || e.key === 'F') { if (genPhase === 'generating') finishGen(); else if (solvePhase === 'solving') finishSolve(); }
   else if (e.key === '+' || e.key === '=') { speed = Math.min(20, speed + 2); document.getElementById('speedSlider').value = speed; stepsPerFrame = speed; }
   else if (e.key === '-') { speed = Math.max(1, speed - 2); document.getElementById('speedSlider').value = speed; stepsPerFrame = speed; }
 });
