@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON MAZE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Orbitron:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0a;
+    color: #e0e0e0;
+    font-family: 'Space Mono', monospace;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+  canvas {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+  }
+  #ui {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+  #title {
+    position: absolute;
+    top: 18px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Syncopate', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    color: #D4A853;
+    text-shadow: 0 0 20px #D4A85388, 0 0 40px #D4A85344;
+  }
+  #controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    pointer-events: all;
+  }
+  .btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 8px 18px;
+    background: transparent;
+    border: 1px solid #00ff88;
+    color: #00ff88;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .btn:hover {
+    background: #00ff8822;
+    box-shadow: 0 0 15px #00ff8844;
+  }
+  .btn.active {
+    background: #D4A85333;
+    border-color: #D4A853;
+    color: #D4A853;
+  }
+  .btn.gold { border-color: #D4A853; color: #D4A853; }
+  .btn.gold:hover { background: #D4A85322; box-shadow: 0 0 15px #D4A85344; }
+  #stats {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: #00ff88;
+    text-align: right;
+    line-height: 1.8;
+    text-shadow: 0 0 8px #00ff8866;
+  }
+  #alg-label {
+    position: absolute;
+    top: 18px;
+    left: 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #00ff88;
+    text-shadow: 0 0 8px #00ff8866;
+    line-height: 1.8;
+  }
+  #legend {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #888;
+    line-height: 2;
+    text-align: right;
+  }
+  #legend span { color: #D4A853; }
+  .particle { position: absolute; border-radius: 50%; pointer-events: none; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <div id="title">NEON MAZE</div>
+  <div id="alg-label">
+    ALGORITHM: <span id="algName">RECURSIVE BACKTRACKER</span><br>
+    MODE: <span id="modeName">GENERATE</span>
+  </div>
+  <div id="stats">
+    CELLS: <span id="cellCount">0</span><br>
+    TIME: <span id="timeEl">0.0s</span><br>
+    SOLVED: <span id="solvedEl">—</span>
+  </div>
+  <div id="legend">
+    <span>■</span> WALLS<br>
+    <span>□</span> PATH<br>
+    <span>●</span> START<br>
+    <span>○</span> END<br>
+    <span>·</span> SOLUTION
+  </div>
+  <div id="controls">
+    <button class="btn gold" onclick="generate()">GENERATE</button>
+    <button class="btn" onclick="solve()">SOLVE (A*)</button>
+    <button class="btn" onclick="solveBFS()">SOLVE (BFS)</button>
+    <button class="btn" onclick="solveDFS()">SOLVE (DFS)</button>
+    <button class="btn" onclick="stepSolve()">STEP</button>
+    <button class="btn" onclick="togglePath()">SHOW PATH</button>
+    <button class="btn" onclick="exportMaze()">EXPORT PNG</button>
+  </div>
+</div>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, COLS, ROWS, cellSize;
+let maze = [];
+let visited = [];
+let generationStack = [];
+let genPhase = 'idle'; // idle, generating, done
+let genStepCount = 0;
+let solvePhase = 'idle'; // idle, solving, done
+let solutionPath = [];
+let solvingStack = [];
+let currentSolveCell = null;
+let showPath = true;
+let solveMode = 'astar';
+let animRunning = false;
+let startTime = 0;
+
+const wallColor = '#1a1a1a';
+const pathColor = '#111';
+const wallLineColor = '#00ff88';
+const visitedColor = 'rgba(0,255,136,0.08)';
+const solutionColor = '#D4A853';
+const startColor = '#00ff88';
+const endColor = '#ff4466';
+const currentColor = '#ffffff44';
+
+function resize() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+  COLS = Math.floor(W / 32);
+  ROWS = Math.floor(H / 32);
+  draw();
+}
+
+function initMaze() {
+  maze = [];
+  visited = [];
+  for (let y = 0; y < ROWS; y++) {
+    maze[y] = [];
+    visited[y] = [];
+    for (let x = 0; x < COLS; x++) {
+      maze[y][x] = { walls: { n: true, s: true, e: true, w: true }, visited: false };
+      visited[y][x] = false;
+    }
+  }
+  generationStack = [];
+  solutionPath = [];
+  solvingStack = [];
+  currentSolveCell = null;
+  solvePhase = 'idle';
+  // Random start
+  let sx = Math.floor(Math.random() * COLS);
+  let sy = Math.floor(Math.random() * ROWS);
+  generationStack.push({ x: sx, y: sy });
+  maze[sy][sx].visited = true;
+  visited[sy][sx] = true;
+  genPhase = 'generating';
+  genStepCount = 0;
+  document.getElementById('cellCount').textContent = '0';
+  document.getElementById('solvedEl').textContent = '—';
+  startTime = performance.now();
+}
+
+function getNeighbors(x, y) {
+  let n = [];
+  if (y > 0 && !maze[y-1][x].visited) n.push({ x, y: y-1, dir: 'n' });
+  if (y < ROWS-1 && !maze[y+1][x].visited) n.push({ x, y: y+1, dir: 's' });
+  if (x < COLS-1 && !maze[y][x+1].visited) n.push({ x: x+1, y, dir: 'e' });
+  if (x > 0 && !maze[y][x-1].visited) n.push({ x: x-1, y, dir: 'w' });
+  return n;
+}
+
+function carve(x1, y1, x2, y2, dir) {
+  if (dir === 'n') { maze[y1][x1].walls.n = false; maze[y2][x2].walls.s = false; }
+  if (dir === 's') { maze[y1][x1].walls.s = false; maze[y2][x2].walls.n = false; }
+  if (dir === 'e') { maze[y1][x1].walls.e = false; maze[y2][x2].walls.w = false; }
+  if (dir === 'w') { maze[y1][x1].walls.w = false; maze[y2][x2].walls.e = false; }
+}
+
+function stepGen() {
+  if (genPhase !== 'generating') return false;
+  let current = generationStack[generationStack.length - 1];
+  let neighbors = getNeighbors(current.x, current.y);
+  if (neighbors.length > 0) {
+    let pick = neighbors[Math.floor(Math.random() * neighbors.length)];
+    carve(current.x, current.y, pick.x, pick.y, pick.dir);
+    maze[pick.y][pick.x].visited = true;
+    visited[pick.y][pick.x] = true;
+    generationStack.push({ x: pick.x, y: pick.y });
+    genStepCount++;
+  } else {
+    generationStack.pop();
+    genStepCount++;
+  }
+  if (generationStack.length === 0) {
+    genPhase = 'done';
+    // Set start and end
+    maze[0][0].isStart = true;
+    maze[ROWS-1][COLS-1].isEnd = true;
+  }
+  return genPhase !== 'done';
+}
+
+function getCellPos(x, y) {
+  return { px: x * cellSize, py: y * cellSize };
+}
+
+function draw() {
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0, 0, W, H);
+
+  cellSize = Math.floor(Math.min(W / COLS, H / ROWS));
+  let offsetX = Math.floor((W - COLS * cellSize) / 2);
+  let offsetY = Math.floor((H - ROWS * cellSize) / 2);
+
+  // Draw cells
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      let { px, py } = getCellPos(x, y);
+      let c = maze[y] && maze[y][x];
+      if (!c) {
+        ctx.fillStyle = pathColor;
+        ctx.fillRect(offsetX + px, offsetY + py, cellSize, cellSize);
+        continue;
+      }
+      ctx.fillStyle = pathColor;
+      ctx.fillRect(offsetX + px, offsetY + py, cellSize, cellSize);
+
+      if (visited[y][x] && genPhase === 'done') {
+        ctx.fillStyle = visitedColor;
+        ctx.fillRect(offsetX + px + 1, offsetY + py + 1, cellSize - 2, cellSize - 2);
+      }
+
+      if (c.isStart) {
+        ctx.fillStyle = startColor;
+        ctx.shadowColor = startColor;
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(offsetX + px + cellSize/2, offsetY + py + cellSize/2, cellSize * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+      if (c.isEnd) {
+        ctx.fillStyle = endColor;
+        ctx.shadowColor = endColor;
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(offsetX + px + cellSize/2, offsetY + py + cellSize/2, cellSize * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.strokeStyle = wallLineColor;
+      ctx.lineWidth = genPhase === 'generating' && generationStack.length > 0 &&
+        generationStack[generationStack.length-1].x === x &&
+        generationStack[generationStack.length-1].y === y ? '#ffffff' : wallLineColor;
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = wallLineColor;
+      ctx.shadowBlur = 4;
+
+      if (c.walls.n) { ctx.beginPath(); ctx.moveTo(offsetX+px, offsetY+py); ctx.lineTo(offsetX+px+cellSize, offsetY+py); ctx.stroke(); }
+      if (c.walls.s) { ctx.beginPath(); ctx.moveTo(offsetX+px, offsetY+py+cellSize); ctx.lineTo(offsetX+px+cellSize, offsetY+py+cellSize); ctx.stroke(); }
+      if (c.walls.w) { ctx.beginPath(); ctx.moveTo(offsetX+px, offsetY+py); ctx.lineTo(offsetX+px, offsetY+py+cellSize); ctx.stroke(); }
+      if (c.walls.e) { ctx.beginPath(); ctx.moveTo(offsetX+px+cellSize, offsetY+py); ctx.lineTo(offsetX+px+cellSize, offsetY+py+cellSize); ctx.stroke(); }
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  // Draw solution path
+  if (showPath && solutionPath.length > 1 && genPhase === 'done') {
+    ctx.strokeStyle = solutionColor;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = solutionColor;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    for (let i = 0; i < solutionPath.length; i++) {
+      let { px, py } = getCellPos(solutionPath[i].x, solutionPath[i].y);
+      let cx = offsetX + px + cellSize/2;
+      let cy = offsetY + py + cellSize/2;
+      if (i === 0) ctx.moveTo(cx, cy);
+      else ctx.lineTo(cx, cy);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  // Draw current solve cell
+  if (currentSolveCell && solvePhase === 'solving') {
+    let { px, py } = getCellPos(currentSolveCell.x, currentSolveCell.y);
+    ctx.fillStyle = '#00ff8833';
+    ctx.fillRect(offsetX + px + 2, offsetY + py + 2, cellSize - 4, cellSize - 4);
+  }
+
+  // Timer
+  if (genPhase === 'generating' || solvePhase === 'solving') {
+    let elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+    document.getElementById('timeEl').textContent = elapsed + 's';
+  }
+
+  document.getElementById('cellCount').textContent = genStepCount;
+}
+
+function animate() {
+  let keepGoing = false;
+  if (genPhase === 'generating') keepGoing = stepGen();
+  if (solvePhase === 'solving') keepGoing = stepSolveAnim();
+  draw();
+  if (keepGoing) requestAnimationFrame(animate);
+  else animRunning = false;
+}
+
+function startAnim() {
+  if (!animRunning) {
+    animRunning = true;
+    animate();
+  }
+}
+
+function generate() {
+  initMaze();
+  startAnim();
+}
+
+function solve() {
+  if (genPhase !== 'done') return;
+  solveMode = 'astar';
+  solvePhase = 'solving';
+  solvingStack = [];
+  solutionPath = [];
+  currentSolveCell = null;
+  document.getElementById('algName').textContent = 'A* PATHFINDER';
+  document.getElementById('modeName').textContent = 'SOLVE';
+  startTime = performance.now();
+
+  // A* init
+  let start = { x: 0, y: 0, g: 0, h: heuristic(0, 0), f: 0, parent: null };
+  start.f = start.g + start.h;
+  solvingStack.push(start);
+  let openSet = [start];
+  let closedSet = new Set();
+
+  window._solveState = { openSet, closedSet, done: false };
+  startAnim();
+}
+
+function heuristic(x, y) {
+  return Math.abs(x - (COLS-1)) + Math.abs(y - (ROWS-1));
+}
+
+function getKey(x, y) { return x + ',' + y; }
+
+function stepSolveAnim() {
+  if (solvePhase !== 'solving') return false;
+  let state = window._solveState;
+  if (!state || state.done) { solvePhase = 'done'; return false; }
+
+  if (state.openSet.length === 0) { state.done = true; solvePhase = 'done'; return false; }
+
+  // Sort by f
+  state.openSet.sort((a, b) => a.f - b.f);
+  let current = state.openSet.shift();
+  let key = getKey(current.x, current.y);
+  if (state.closedSet.has(key)) return true;
+  state.closedSet.add(key);
+  currentSolveCell = { x: current.x, y: current.y };
+
+  if (current.x === COLS-1 && current.y === ROWS-1) {
+    // Reconstruct
+    let node = current;
+    while (node) { solutionPath.unshift({ x: node.x, y: node.y }); node = node.parent; }
+    state.done = true;
+    solvePhase = 'done';
+    document.getElementById('solvedEl').textContent = 'YES — ' + solutionPath.length + ' steps';
+    return false;
+  }
+
+  // Expand neighbors (check walls)
+  let c = maze[current.y][current.x];
+  let dirs = [];
+  if (!c.walls.n && current.y > 0) dirs.push({ nx: current.x, ny: current.y-1, wall: 'n' });
+  if (!c.walls.s && current.y < ROWS-1) dirs.push({ nx: current.x, ny: current.y+1, wall: 's' });
+  if (!c.walls.e && current.x < COLS-1) dirs.push({ nx: current.x+1, ny: current.y, wall: 'e' });
+  if (!c.walls.w && current.x > 0) dirs.push({ nx: current.x-1, ny: current.y, wall: 'w' });
+
+  for (let d of dirs) {
+    let nkey = getKey(d.nx, d.ny);
+    if (!state.closedSet.has(nkey)) {
+      let g = current.g + 1;
+      let existing = state.openSet.find(n => n.x === d.nx && n.y === d.ny);
+      if (!existing) {
+        let h = heuristic(d.nx, d.ny);
+        state.openSet.push({ x: d.nx, y: d.ny, g, h, f: g+h, parent: current });
+      } else if (g < existing.g) {
+        existing.g = g;
+        existing.f = g + existing.h;
+        existing.parent = current;
+      }
+    }
+  }
+
+  return true;
+}
+
+function solveBFS() {
+  if (genPhase !== 'done') return;
+  solvePhase = 'solving';
+  solutionPath = [];
+  currentSolveCell = null;
+  document.getElementById('algName').textContent = 'BFS PATHFINDER';
+  document.getElementById('modeName').textContent = 'SOLVE';
+  startTime = performance.now();
+
+  let queue = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
+  let visitedS = new Set(['0,0']);
+  window._bfsState = { queue, visitedS, done: false };
+  startAnim();
+}
+
+function stepSolveAnimBFS() {
+  if (solvePhase !== 'solving') return false;
+  let state = window._bfsState;
+  if (!state || state.done) { solvePhase = 'done'; return false; }
+
+  if (state.queue.length === 0) { state.done = true; solvePhase = 'done'; return false; }
+
+  let current = state.queue.shift();
+  currentSolveCell = { x: current.x, y: current.y };
+
+  if (current.x === COLS-1 && current.y === ROWS-1) {
+    solutionPath = current.path;
+    state.done = true;
+    solvePhase = 'done';
+    document.getElementById('solvedEl').textContent = 'YES — ' + solutionPath.length + ' steps';
+    return false;
+  }
+
+  let c = maze[current.y][current.x];
+  let dirs = [];
+  if (!c.walls.n && current.y > 0) dirs.push({ nx: current.x, ny: current.y-1 });
+  if (!c.walls.s && current.y < ROWS-1) dirs.push({ nx: current.x, ny: current.y+1 });
+  if (!c.walls.e && current.x < COLS-1) dirs.push({ nx: current.x+1, ny: current.y });
+  if (!c.walls.w && current.x > 0) dirs.push({ nx: current.x-1, ny: current.y });
+
+  for (let d of dirs) {
+    let nkey = getKey(d.nx, d.ny);
+    if (!state.visitedS.has(nkey)) {
+      state.visitedS.add(nkey);
+      state.queue.push({ x: d.nx, y: d.ny, path: current.path.concat([{ x: d.nx, y: d.ny }]) });
+    }
+  }
+  return true;
+}
+
+function solveDFS() {
+  if (genPhase !== 'done') return;
+  solvePhase = 'solving';
+  solutionPath = [];
+  currentSolveCell = null;
+  document.getElementById('algName').textContent = 'DFS PATHFINDER';
+  document.getElementById('modeName').textContent = 'SOLVE';
+  startTime = performance.now();
+
+  let stack = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
+  let visitedS = new Set(['0,0']);
+  window._dfsState = { stack, visitedS, done: false };
+  startAnim();
+}
+
+function stepSolveAnimDFS() {
+  if (solvePhase !== 'solving') return false;
+  let state = window._dfsState;
+  if (!state || state.done) { solvePhase = 'done'; return false; }
+
+  if (state.stack.length === 0) { state.done = true; solvePhase = 'done'; return false; }
+
+  let current = state.stack.pop();
+  currentSolveCell = { x: current.x, y: current.y };
+
+  if (current.x === COLS-1 && current.y === ROWS-1) {
+    solutionPath = current.path;
+    state.done = true;
+    solvePhase = 'done';
+    document.getElementById('solvedEl').textContent = 'YES — ' + solutionPath.length + ' steps';
+    return false;
+  }
+
+  let c = maze[current.y][current.x];
+  let dirs = [];
+  if (!c.walls.n && current.y > 0) dirs.push({ nx: current.x, ny: current.y-1 });
+  if (!c.walls.s && current.y < ROWS-1) dirs.push({ nx: current.x, ny: current.y+1 });
+  if (!c.walls.e && current.x < COLS-1) dirs.push({ nx: current.x+1, ny: current.y });
+  if (!c.walls.w && current.x > 0) dirs.push({ nx: current.x-1, ny: current.y });
+
+  for (let d of dirs) {
+    let nkey = getKey(d.nx, d.ny);
+    if (!state.visitedS.has(nkey)) {
+      state.visitedS.add(nkey);
+      state.stack.push({ x: d.nx, y: d.ny, path: current.path.concat([{ x: d.nx, y: d.ny }]) });
+    }
+  }
+  return true;
+}
+
+function stepSolve() {
+  // Step through whichever solver is active
+  if (solvePhase === 'done' || solvePhase === 'idle') return;
+  if (solveMode === 'astar') stepSolveAnim();
+  else if (solveMode === 'bfs') stepSolveAnimBFS();
+  else if (solveMode === 'dfs') stepSolveAnimDFS();
+  draw();
+}
+
+function solveBFS() {
+  if (genPhase !== 'done') return;
+  solveMode = 'bfs';
+  solvePhase = 'solving';
+  solutionPath = [];
+  currentSolveCell = null;
+  document.getElementById('algName').textContent = 'BFS PATHFINDER';
+  document.getElementById('modeName').textContent = 'SOLVE';
+  startTime = performance.now();
+
+  let queue = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
+  let visitedS = new Set(['0,0']);
+  window._bfsState = { queue, visitedS, done: false };
+  startAnim();
+}
+
+function solveDFS() {
+  if (genPhase !== 'done') return;
+  solveMode = 'dfs';
+  solvePhase = 'solving';
+  solutionPath = [];
+  currentSolveCell = null;
+  document.getElementById('algName').textContent = 'DFS PATHFINDER';
+  document.getElementById('modeName').textContent = 'SOLVE';
+  startTime = performance.now();
+
+  let stack = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
+  let visitedS = new Set(['0,0']);
+  window._dfsState = { stack, visitedS, done: false };
+  startAnim();
+}
+
+function togglePath() {
+  showPath = !showPath;
+  draw();
+}
+
+function exportMaze() {
+  let link = document.createElement('a');
+  link.download = 'neon-maze.png';
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+// Override stepSolve to dispatch correctly
+function stepSolve() {
+  if (solvePhase === 'done' || solvePhase === 'idle') return;
+  if (solveMode === 'astar') { if (!stepSolveAnim()) solvePhase = 'done'; }
+  else if (solveMode === 'bfs') { if (!stepSolveAnimBFS()) solvePhase = 'done'; }
+  else if (solveMode === 'dfs') { if (!stepSolveAnimDFS()) solvePhase = 'done'; }
+  draw();
+}
+
+// Override animate to handle all modes
+let _origAnimate = animate;
+function animate() {
+  let keepGoing = false;
+  if (genPhase === 'generating') keepGoing = stepGen();
+  if (solvePhase === 'solving') {
+    if (solveMode === 'astar') keepGoing = stepSolveAnim();
+    else if (solveMode === 'bfs') keepGoing = stepSolveAnimBFS();
+    else if (solveMode === 'dfs') keepGoing = stepSolveAnimDFS();
+  }
+  draw();
+  if (keepGoing) requestAnimationFrame(animate);
+  else animRunning = false;
+}
+
+window.addEventListener('resize', resize);
+resize();
+initMaze();
+draw();
+</script>
+</body>
+</html>
