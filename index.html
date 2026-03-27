@@ -265,6 +265,7 @@ const endColor = '#ff4466';
 // Prim's state
 let primActive = new Set();
 let primWalls = [];
+let primWallsSet = new Set();
 
 function resize() {
   W = window.innerWidth;
@@ -305,6 +306,7 @@ function initMaze() {
   visited = [];
   primActive = new Set();
   primWalls = [];
+  primWallsSet = new Set();
   for (let y = 0; y < ROWS; y++) {
     maze[y] = [];
     visited[y] = [];
@@ -358,11 +360,14 @@ function initPrim() {
 
 function getKey(x, y) { return x + ',' + y; }
 
+// Normalized wall key (sorted so wall(A,B) === wall(B,A))
+function wallKey(x1, y1, x2, y2) { return x1 < x2 || (x1 === x2 && y1 < y2) ? x1+','+y1+','+x2+','+y2 : x2+','+y2+','+x1+','+y1; }
+
 function addPrimWalls(x, y) {
-  if (y > 0 && !maze[y-1][x].inMaze) primWalls.push({ x1: x, y1: y, x2: x, y2: y-1, dir: 'n' });
-  if (y < ROWS-1 && !maze[y+1][x].inMaze) primWalls.push({ x1: x, y1: y, x2: x, y2: y+1, dir: 's' });
-  if (x < COLS-1 && !maze[y][x+1].inMaze) primWalls.push({ x1: x, y1: y, x2: x+1, y2: y, dir: 'e' });
-  if (x > 0 && !maze[y][x-1].inMaze) primWalls.push({ x1: x, y1: y, x2: x-1, y2: y, dir: 'w' });
+  if (y > 0 && !maze[y-1][x].inMaze) { let k = wallKey(x,y,x,y-1); if (!primWallsSet.has(k)) { primWallsSet.add(k); primWalls.push({ x1: x, y1: y, x2: x, y2: y-1, dir: 'n', key: k }); } }
+  if (y < ROWS-1 && !maze[y+1][x].inMaze) { let k = wallKey(x,y,x,y+1); if (!primWallsSet.has(k)) { primWallsSet.add(k); primWalls.push({ x1: x, y1: y, x2: x, y2: y+1, dir: 's', key: k }); } }
+  if (x < COLS-1 && !maze[y][x+1].inMaze) { let k = wallKey(x,y,x+1,y); if (!primWallsSet.has(k)) { primWallsSet.add(k); primWalls.push({ x1: x, y1: y, x2: x+1, y2: y, dir: 'e', key: k }); } }
+  if (x > 0 && !maze[y][x-1].inMaze) { let k = wallKey(x,y,x-1,y); if (!primWallsSet.has(k)) { primWallsSet.add(k); primWalls.push({ x1: x, y1: y, x2: x-1, y2: y, dir: 'w', key: k }); } }
 }
 
 function stepPrim() {
@@ -371,6 +376,7 @@ function stepPrim() {
   // Pick random wall
   let idx = Math.floor(Math.random() * primWalls.length);
   let wall = primWalls.splice(idx, 1)[0];
+  if (wall.key) primWallsSet.delete(wall.key);
   let c1 = maze[wall.y1][wall.x1];
   let c2 = maze[wall.y2][wall.x2];
   let in1 = c1.inMaze;
