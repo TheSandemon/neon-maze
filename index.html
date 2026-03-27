@@ -45,16 +45,17 @@
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
     justify-content: center;
     pointer-events: all;
+    max-width: 95vw;
   }
   .btn {
     font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
-    letter-spacing: 2px;
-    padding: 8px 18px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 7px 14px;
     background: transparent;
     border: 1px solid #00ff88;
     color: #00ff88;
@@ -66,13 +67,16 @@
     background: #00ff8822;
     box-shadow: 0 0 15px #00ff8844;
   }
-  .btn.active {
+  .btn.active, .btn.gold.active {
     background: #D4A85333;
     border-color: #D4A853;
     color: #D4A853;
   }
   .btn.gold { border-color: #D4A853; color: #D4A853; }
   .btn.gold:hover { background: #D4A85322; box-shadow: 0 0 15px #D4A85344; }
+  .btn.cyan { border-color: #00ccff; color: #00ccff; }
+  .btn.cyan:hover { background: #00ccff22; box-shadow: 0 0 15px #00ccff44; }
+  .btn.cyan.active { background: #00ccff33; border-color: #00ccff; }
   #stats {
     position: absolute;
     top: 18px;
@@ -107,7 +111,75 @@
     text-align: right;
   }
   #legend span { color: #D4A853; }
+  #hint {
+    position: absolute;
+    bottom: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: #555;
+    text-align: center;
+    white-space: nowrap;
+  }
   .particle { position: absolute; border-radius: 50%; pointer-events: none; }
+  #top-bar {
+    position: absolute;
+    top: 62px;
+    left: 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  #top-bar label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #top-bar span {
+    color: #00ff88;
+    min-width: 80px;
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100px;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #00ff88;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  #algo-btns {
+    display: flex;
+    gap: 6px;
+    pointer-events: all;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #solve-btns {
+    display: flex;
+    gap: 6px;
+    pointer-events: all;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #controls-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    pointer-events: all;
+  }
 </style>
 </head>
 <body>
@@ -115,29 +187,44 @@
 <div id="ui">
   <div id="title">NEON MAZE</div>
   <div id="alg-label">
-    ALGORITHM: <span id="algName">RECURSIVE BACKTRACKER</span><br>
-    MODE: <span id="modeName">GENERATE</span>
+    GEN: <span id="genName">RECURSIVE BACKTRACKER</span><br>
+    SOLVE: <span id="solveName">—</span><br>
+    DIFFICULTY: <span id="diffName">MEDIUM</span>
   </div>
   <div id="stats">
     CELLS: <span id="cellCount">0</span><br>
-    TIME: <span id="timeEl">0.0s</span><br>
-    SOLVED: <span id="solvedEl">—</span>
+    GEN: <span id="genTime">0.0s</span><br>
+    SOLVE: <span id="solveTime">—</span><br>
+    LENGTH: <span id="pathLen">—</span>
   </div>
   <div id="legend">
-    <span>■</span> WALLS<br>
-    <span>□</span> PATH<br>
-    <span>●</span> START<br>
-    <span>○</span> END<br>
+    <span>■</span> WALLS &nbsp; <span>□</span> PATH<br>
+    <span>●</span> START &nbsp; <span>○</span> END<br>
     <span>·</span> SOLUTION
   </div>
+  <div id="hint">1-2: GEN ALGO &nbsp; 3-6: SOLVE &nbsp; P: PATH &nbsp; E: EXPORT &nbsp; R: RESET &nbsp; +/-: SPEED</div>
+  <div id="top-bar">
+    <label><span>DIFFICULTY</span><input type="range" id="diffSlider" min="1" max="3" value="2" oninput="setDifficulty(this.value)"></label>
+    <label><span>SPEED</span><input type="range" id="speedSlider" min="1" max="20" value="5" oninput="setSpeed(this.value)"></label>
+  </div>
   <div id="controls">
-    <button class="btn gold" onclick="generate()">GENERATE</button>
-    <button class="btn" onclick="solve()">SOLVE (A*)</button>
-    <button class="btn" onclick="solveBFS()">SOLVE (BFS)</button>
-    <button class="btn" onclick="solveDFS()">SOLVE (DFS)</button>
-    <button class="btn" onclick="stepSolve()">STEP</button>
-    <button class="btn" onclick="togglePath()">SHOW PATH</button>
-    <button class="btn" onclick="exportMaze()">EXPORT PNG</button>
+    <div id="controls-row">
+      <div id="algo-btns">
+        <button class="btn gold active" id="btn-backtrack" onclick="setGenAlgo('backtrack')">BACKTRACK</button>
+        <button class="btn gold" id="btn-prim" onclick="setGenAlgo('prim')">PRIM'S</button>
+      </div>
+      <div id="solve-btns">
+        <button class="btn" id="btn-astar" onclick="solve('astar')">A*</button>
+        <button class="btn" id="btn-bfs" onclick="solve('bfs')">BFS</button>
+        <button class="btn" id="btn-dfs" onclick="solve('dfs')">DFS</button>
+        <button class="btn cyan" id="btn-dijkstra" onclick="solve('dijkstra')">DIJKSTRA</button>
+      </div>
+    </div>
+    <div id="controls-row">
+      <button class="btn" onclick="generate()">GENERATE</button>
+      <button class="btn" onclick="togglePath()">PATH</button>
+      <button class="btn" onclick="exportMaze()">EXPORT</button>
+    </div>
   </div>
 </div>
 <script>
@@ -147,25 +234,35 @@ let W, H, COLS, ROWS, cellSize;
 let maze = [];
 let visited = [];
 let generationStack = [];
-let genPhase = 'idle'; // idle, generating, done
+let genPhase = 'idle';
 let genStepCount = 0;
-let solvePhase = 'idle'; // idle, solving, done
+let solvePhase = 'idle';
 let solutionPath = [];
 let solvingStack = [];
 let currentSolveCell = null;
 let showPath = true;
-let solveMode = 'astar';
+let solveMode = null;
 let animRunning = false;
 let startTime = 0;
+let genStartTime = 0;
+let solveStartTime = 0;
+let genAlgo = 'backtrack';
+let difficulty = 2;
+let speed = 5;
+let stepsPerFrame = 5;
 
 const wallColor = '#1a1a1a';
 const pathColor = '#111';
 const wallLineColor = '#00ff88';
 const visitedColor = 'rgba(0,255,136,0.08)';
 const solutionColor = '#D4A853';
+const dijkstraColor = '#00ccff';
 const startColor = '#00ff88';
 const endColor = '#ff4466';
-const currentColor = '#ffffff44';
+
+// Prim's state
+let primActive = new Set();
+let primWalls = [];
 
 function resize() {
   W = window.innerWidth;
@@ -174,17 +271,43 @@ function resize() {
   canvas.height = H;
   COLS = Math.floor(W / 32);
   ROWS = Math.floor(H / 32);
+  // Adjust by difficulty
+  if (difficulty === 1) { COLS = Math.max(8, Math.floor(COLS * 0.6)); ROWS = Math.max(6, Math.floor(ROWS * 0.6)); }
+  if (difficulty === 3) { COLS = Math.floor(W / 18); ROWS = Math.floor(H / 18); }
   draw();
+}
+
+function setDifficulty(val) {
+  difficulty = parseInt(val);
+  const names = ['', 'SPARSE', 'MEDIUM', 'DENSE'];
+  document.getElementById('diffName').textContent = names[difficulty];
+  resize();
+  initMaze();
+  draw();
+}
+
+function setSpeed(val) {
+  speed = parseInt(val);
+  stepsPerFrame = speed;
+}
+
+function setGenAlgo(algo) {
+  genAlgo = algo;
+  document.getElementById('btn-backtrack').classList.toggle('active', algo === 'backtrack');
+  document.getElementById('btn-prim').classList.toggle('active', algo === 'prim');
+  document.getElementById('genName').textContent = algo === 'backtrack' ? 'RECURSIVE BACKTRACKER' : "PRIM'S ALGORITHM";
 }
 
 function initMaze() {
   maze = [];
   visited = [];
+  primActive = new Set();
+  primWalls = [];
   for (let y = 0; y < ROWS; y++) {
     maze[y] = [];
     visited[y] = [];
     for (let x = 0; x < COLS; x++) {
-      maze[y][x] = { walls: { n: true, s: true, e: true, w: true }, visited: false };
+      maze[y][x] = { walls: { n: true, s: true, e: true, w: true }, visited: false, inMaze: false };
       visited[y][x] = false;
     }
   }
@@ -193,25 +316,22 @@ function initMaze() {
   solvingStack = [];
   currentSolveCell = null;
   solvePhase = 'idle';
-  // Random start
-  let sx = Math.floor(Math.random() * COLS);
-  let sy = Math.floor(Math.random() * ROWS);
-  generationStack.push({ x: sx, y: sy });
-  maze[sy][sx].visited = true;
-  visited[sy][sx] = true;
-  genPhase = 'generating';
+  genPhase = 'idle';
   genStepCount = 0;
+
   document.getElementById('cellCount').textContent = '0';
-  document.getElementById('solvedEl').textContent = '—';
-  startTime = performance.now();
+  document.getElementById('solveTime').textContent = '—';
+  document.getElementById('pathLen').textContent = '—';
+  document.getElementById('solveName').textContent = '—';
+  clearSolveButtons();
 }
 
 function getNeighbors(x, y) {
   let n = [];
-  if (y > 0 && !maze[y-1][x].visited) n.push({ x, y: y-1, dir: 'n' });
-  if (y < ROWS-1 && !maze[y+1][x].visited) n.push({ x, y: y+1, dir: 's' });
-  if (x < COLS-1 && !maze[y][x+1].visited) n.push({ x: x+1, y, dir: 'e' });
-  if (x > 0 && !maze[y][x-1].visited) n.push({ x: x-1, y, dir: 'w' });
+  if (y > 0 && !visited[y-1][x]) n.push({ x, y: y-1, dir: 'n' });
+  if (y < ROWS-1 && !visited[y+1][x]) n.push({ x, y: y+1, dir: 's' });
+  if (x < COLS-1 && !visited[y][x+1]) n.push({ x: x+1, y, dir: 'e' });
+  if (x > 0 && !visited[y][x-1]) n.push({ x: x-1, y, dir: 'w' });
   return n;
 }
 
@@ -222,8 +342,102 @@ function carve(x1, y1, x2, y2, dir) {
   if (dir === 'w') { maze[y1][x1].walls.w = false; maze[y2][x2].walls.e = false; }
 }
 
+function initPrim() {
+  // Start from random cell
+  let sx = Math.floor(Math.random() * COLS);
+  let sy = Math.floor(Math.random() * ROWS);
+  visited[sy][sx] = true;
+  maze[sy][sx].inMaze = true;
+  maze[sy][sx].visited = true;
+  primActive.add(getKey(sx, sy));
+  // Add walls of starting cell
+  addPrimWalls(sx, sy);
+}
+
+function getKey(x, y) { return x + ',' + y; }
+
+function addPrimWalls(x, y) {
+  if (y > 0 && !maze[y-1][x].inMaze) primWalls.push({ x1: x, y1: y, x2: x, y2: y-1, dir: 'n' });
+  if (y < ROWS-1 && !maze[y+1][x].inMaze) primWalls.push({ x1: x, y1: y, x2: x, y2: y+1, dir: 's' });
+  if (x < COLS-1 && !maze[y][x+1].inMaze) primWalls.push({ x1: x, y1: y, x2: x+1, y2: y, dir: 'e' });
+  if (x > 0 && !maze[y][x-1].inMaze) primWalls.push({ x1: x, y1: y, x2: x-1, y2: y, dir: 'w' });
+}
+
+function stepPrim() {
+  if (primWalls.length === 0) return false;
+
+  // Pick random wall
+  let idx = Math.floor(Math.random() * primWalls.length);
+  let wall = primWalls.splice(idx, 1)[0];
+  let c1 = maze[wall.y1][wall.x1];
+  let c2 = maze[wall.y2][wall.x2];
+  let in1 = c1.inMaze;
+  let in2 = c2.inMaze;
+
+  if (in1 && !in2) {
+    carve(wall.x1, wall.y1, wall.x2, wall.y2, wall.dir);
+    visited[wall.y2][wall.x2] = true;
+    maze[wall.y2][wall.x2].inMaze = true;
+    maze[wall.y2][wall.x2].visited = true;
+    primActive.add(getKey(wall.x2, wall.y2));
+    addPrimWalls(wall.x2, wall.y2);
+  } else if (!in1 && in2) {
+    carve(wall.x1, wall.y1, wall.x2, wall.y2, wall.dir);
+    visited[wall.y1][wall.x1] = true;
+    maze[wall.y1][wall.x1].inMaze = true;
+    maze[wall.y1][wall.x1].visited = true;
+    primActive.add(getKey(wall.x1, wall.y1));
+    addPrimWalls(wall.x1, wall.y1);
+  } else if (!in1 && !in2) {
+    // Both outside - pick one randomly
+    if (Math.random() < 0.5) {
+      carve(wall.x1, wall.y1, wall.x2, wall.y2, wall.dir);
+      visited[wall.y1][wall.x1] = true;
+      maze[wall.y1][wall.x1].inMaze = true;
+      maze[wall.y1][wall.x1].visited = true;
+      primActive.add(getKey(wall.x1, wall.y1));
+      addPrimWalls(wall.x1, wall.y1);
+    } else {
+      carve(wall.x1, wall.y1, wall.x2, wall.y2, wall.dir);
+      visited[wall.y2][wall.x2] = true;
+      maze[wall.y2][wall.x2].inMaze = true;
+      maze[wall.y2][wall.x2].visited = true;
+      primActive.add(getKey(wall.x2, wall.y2));
+      addPrimWalls(wall.x2, wall.y2);
+    }
+  }
+  // If both inMaze, wall is between two already-connected cells — discard
+
+  genStepCount++;
+  let total = COLS * ROWS;
+  let inMaze = 0;
+  for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (maze[y][x].inMaze) inMaze++;
+  document.getElementById('cellCount').textContent = inMaze + '/' + total;
+
+  if (primWalls.length === 0) {
+    // All cells visited
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) visited[y][x] = true;
+    return false;
+  }
+  return true;
+}
+
 function stepGen() {
   if (genPhase !== 'generating') return false;
+
+  if (genAlgo === 'prim') {
+    let more = stepPrim();
+    if (!more) {
+      genPhase = 'done';
+      maze[0][0].isStart = true;
+      maze[ROWS-1][COLS-1].isEnd = true;
+      let elapsed = ((performance.now() - genStartTime) / 1000).toFixed(1);
+      document.getElementById('genTime').textContent = elapsed + 's';
+    }
+    return genPhase !== 'done';
+  }
+
+  // Recursive backtracker
   let current = generationStack[generationStack.length - 1];
   let neighbors = getNeighbors(current.x, current.y);
   if (neighbors.length > 0) {
@@ -237,11 +451,14 @@ function stepGen() {
     generationStack.pop();
     genStepCount++;
   }
+  document.getElementById('cellCount').textContent = genStepCount;
+
   if (generationStack.length === 0) {
     genPhase = 'done';
-    // Set start and end
     maze[0][0].isStart = true;
     maze[ROWS-1][COLS-1].isEnd = true;
+    let elapsed = ((performance.now() - genStartTime) / 1000).toFixed(1);
+    document.getElementById('genTime').textContent = elapsed + 's';
   }
   return genPhase !== 'done';
 }
@@ -258,7 +475,6 @@ function draw() {
   let offsetX = Math.floor((W - COLS * cellSize) / 2);
   let offsetY = Math.floor((H - ROWS * cellSize) / 2);
 
-  // Draw cells
   for (let y = 0; y < ROWS; y++) {
     for (let x = 0; x < COLS; x++) {
       let { px, py } = getCellPos(x, y);
@@ -279,26 +495,29 @@ function draw() {
       if (c.isStart) {
         ctx.fillStyle = startColor;
         ctx.shadowColor = startColor;
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 14;
         ctx.beginPath();
-        ctx.arc(offsetX + px + cellSize/2, offsetY + py + cellSize/2, cellSize * 0.25, 0, Math.PI * 2);
+        ctx.arc(offsetX + px + cellSize/2, offsetY + py + cellSize/2, cellSize * 0.28, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
       }
       if (c.isEnd) {
         ctx.fillStyle = endColor;
         ctx.shadowColor = endColor;
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 14;
         ctx.beginPath();
-        ctx.arc(offsetX + px + cellSize/2, offsetY + py + cellSize/2, cellSize * 0.25, 0, Math.PI * 2);
+        ctx.arc(offsetX + px + cellSize/2, offsetY + py + cellSize/2, cellSize * 0.28, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
       }
 
+      // Current cell in Prim's generation
+      if (genAlgo === 'prim' && primActive.has(getKey(x,y)) && genPhase === 'generating') {
+        ctx.fillStyle = 'rgba(0,255,136,0.15)';
+        ctx.fillRect(offsetX + px + 1, offsetY + py + 1, cellSize - 2, cellSize - 2);
+      }
+
       ctx.strokeStyle = wallLineColor;
-      ctx.lineWidth = genPhase === 'generating' && generationStack.length > 0 &&
-        generationStack[generationStack.length-1].x === x &&
-        generationStack[generationStack.length-1].y === y ? '#ffffff' : wallLineColor;
       ctx.lineWidth = 1.5;
       ctx.shadowColor = wallLineColor;
       ctx.shadowBlur = 4;
@@ -311,12 +530,13 @@ function draw() {
     }
   }
 
-  // Draw solution path
+  // Solution path
   if (showPath && solutionPath.length > 1 && genPhase === 'done') {
-    ctx.strokeStyle = solutionColor;
+    let col = solveMode === 'dijkstra' ? dijkstraColor : solutionColor;
+    ctx.strokeStyle = col;
     ctx.lineWidth = 2;
-    ctx.shadowColor = solutionColor;
-    ctx.shadowBlur = 8;
+    ctx.shadowColor = col;
+    ctx.shadowBlur = 10;
     ctx.beginPath();
     for (let i = 0; i < solutionPath.length; i++) {
       let { px, py } = getCellPos(solutionPath[i].x, solutionPath[i].y);
@@ -329,26 +549,30 @@ function draw() {
     ctx.shadowBlur = 0;
   }
 
-  // Draw current solve cell
+  // Current solve cell
   if (currentSolveCell && solvePhase === 'solving') {
     let { px, py } = getCellPos(currentSolveCell.x, currentSolveCell.y);
-    ctx.fillStyle = '#00ff8833';
+    let col = solveMode === 'dijkstra' ? dijkstraColor : '#00ff8844';
+    ctx.fillStyle = col;
     ctx.fillRect(offsetX + px + 2, offsetY + py + 2, cellSize - 4, cellSize - 4);
   }
-
-  // Timer
-  if (genPhase === 'generating' || solvePhase === 'solving') {
-    let elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
-    document.getElementById('timeEl').textContent = elapsed + 's';
-  }
-
-  document.getElementById('cellCount').textContent = genStepCount;
 }
 
 function animate() {
   let keepGoing = false;
-  if (genPhase === 'generating') keepGoing = stepGen();
-  if (solvePhase === 'solving') keepGoing = stepSolveAnim();
+
+  for (let i = 0; i < stepsPerFrame; i++) {
+    if (genPhase === 'generating') keepGoing = stepGen();
+  }
+  for (let i = 0; i < stepsPerFrame; i++) {
+    if (solvePhase === 'solving') {
+      if (solveMode === 'astar') keepGoing = stepSolveAnim();
+      else if (solveMode === 'bfs') keepGoing = stepSolveAnimBFS();
+      else if (solveMode === 'dfs') keepGoing = stepSolveAnimDFS();
+      else if (solveMode === 'dijkstra') keepGoing = stepSolveAnimDijkstra();
+    }
+  }
+
   draw();
   if (keepGoing) requestAnimationFrame(animate);
   else animRunning = false;
@@ -363,70 +587,92 @@ function startAnim() {
 
 function generate() {
   initMaze();
+  if (genAlgo === 'prim') {
+    initPrim();
+  } else {
+    let sx = Math.floor(Math.random() * COLS);
+    let sy = Math.floor(Math.random() * ROWS);
+    generationStack.push({ x: sx, y: sy });
+    maze[sy][sx].visited = true;
+    visited[sy][sx] = true;
+  }
+  genPhase = 'generating';
+  genStartTime = performance.now();
   startAnim();
 }
 
-function solve() {
+function solve(mode) {
   if (genPhase !== 'done') return;
-  solveMode = 'astar';
+  solveMode = mode;
   solvePhase = 'solving';
-  solvingStack = [];
   solutionPath = [];
   currentSolveCell = null;
-  document.getElementById('algName').textContent = 'A* PATHFINDER';
-  document.getElementById('modeName').textContent = 'SOLVE';
-  startTime = performance.now();
+  const names = { astar: 'A* PATHFINDER', bfs: 'BFS PATHFINDER', dfs: 'DFS PATHFINDER', dijkstra: 'DIJKSTRA' };
+  document.getElementById('solveName').textContent = names[mode];
+  solveStartTime = performance.now();
+  clearSolveButtons();
+  document.getElementById('btn-' + mode).classList.add('active');
+  window._solveState = null;
+  window._bfsState = null;
+  window._dfsState = null;
+  window._dijkstraState = null;
 
-  // A* init
-  let start = { x: 0, y: 0, g: 0, h: heuristic(0, 0), f: 0, parent: null };
-  start.f = start.g + start.h;
-  solvingStack.push(start);
-  let openSet = [start];
-  let closedSet = new Set();
-
-  window._solveState = { openSet, closedSet, done: false };
+  if (mode === 'astar') {
+    let start = { x: 0, y: 0, g: 0, h: heuristic(0, 0), f: 0, parent: null };
+    start.f = start.g + start.h;
+    let openSet = [start];
+    let closedSet = new Set();
+    window._solveState = { openSet, closedSet, done: false };
+  } else if (mode === 'bfs') {
+    let queue = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
+    let visitedS = new Set(['0,0']);
+    window._bfsState = { queue, visitedS, done: false };
+  } else if (mode === 'dfs') {
+    let stack = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
+    let visitedS = new Set(['0,0']);
+    window._dfsState = { stack, visitedS, done: false };
+  } else if (mode === 'dijkstra') {
+    let start = { x: 0, y: 0, dist: 0, parent: null };
+    let distMap = new Map();
+    distMap.set('0,0', 0);
+    window._dijkstraState = { distMap, done: false, current: null };
+  }
   startAnim();
+}
+
+function clearSolveButtons() {
+  document.getElementById('btn-astar').classList.remove('active');
+  document.getElementById('btn-bfs').classList.remove('active');
+  document.getElementById('btn-dfs').classList.remove('active');
+  document.getElementById('btn-dijkstra').classList.remove('active');
 }
 
 function heuristic(x, y) {
   return Math.abs(x - (COLS-1)) + Math.abs(y - (ROWS-1));
 }
 
-function getKey(x, y) { return x + ',' + y; }
-
 function stepSolveAnim() {
   if (solvePhase !== 'solving') return false;
   let state = window._solveState;
-  if (!state || state.done) { solvePhase = 'done'; return false; }
-
-  if (state.openSet.length === 0) { state.done = true; solvePhase = 'done'; return false; }
-
-  // Sort by f
+  if (!state || state.done) { solvePhase = 'done'; finishSolve(); return false; }
+  if (state.openSet.length === 0) { state.done = true; solvePhase = 'done'; finishSolve(); return false; }
   state.openSet.sort((a, b) => a.f - b.f);
   let current = state.openSet.shift();
   let key = getKey(current.x, current.y);
   if (state.closedSet.has(key)) return true;
   state.closedSet.add(key);
   currentSolveCell = { x: current.x, y: current.y };
-
   if (current.x === COLS-1 && current.y === ROWS-1) {
-    // Reconstruct
     let node = current;
     while (node) { solutionPath.unshift({ x: node.x, y: node.y }); node = node.parent; }
-    state.done = true;
-    solvePhase = 'done';
-    document.getElementById('solvedEl').textContent = 'YES — ' + solutionPath.length + ' steps';
-    return false;
+    state.done = true; solvePhase = 'done'; finishSolve(); return false;
   }
-
-  // Expand neighbors (check walls)
   let c = maze[current.y][current.x];
   let dirs = [];
-  if (!c.walls.n && current.y > 0) dirs.push({ nx: current.x, ny: current.y-1, wall: 'n' });
-  if (!c.walls.s && current.y < ROWS-1) dirs.push({ nx: current.x, ny: current.y+1, wall: 's' });
-  if (!c.walls.e && current.x < COLS-1) dirs.push({ nx: current.x+1, ny: current.y, wall: 'e' });
-  if (!c.walls.w && current.x > 0) dirs.push({ nx: current.x-1, ny: current.y, wall: 'w' });
-
+  if (!c.walls.n && current.y > 0) dirs.push({ nx: current.x, ny: current.y-1 });
+  if (!c.walls.s && current.y < ROWS-1) dirs.push({ nx: current.x, ny: current.y+1 });
+  if (!c.walls.e && current.x < COLS-1) dirs.push({ nx: current.x+1, ny: current.y });
+  if (!c.walls.w && current.x > 0) dirs.push({ nx: current.x-1, ny: current.y });
   for (let d of dirs) {
     let nkey = getKey(d.nx, d.ny);
     if (!state.closedSet.has(nkey)) {
@@ -436,56 +682,29 @@ function stepSolveAnim() {
         let h = heuristic(d.nx, d.ny);
         state.openSet.push({ x: d.nx, y: d.ny, g, h, f: g+h, parent: current });
       } else if (g < existing.g) {
-        existing.g = g;
-        existing.f = g + existing.h;
-        existing.parent = current;
+        existing.g = g; existing.f = g + existing.h; existing.parent = current;
       }
     }
   }
-
   return true;
-}
-
-function solveBFS() {
-  if (genPhase !== 'done') return;
-  solvePhase = 'solving';
-  solutionPath = [];
-  currentSolveCell = null;
-  document.getElementById('algName').textContent = 'BFS PATHFINDER';
-  document.getElementById('modeName').textContent = 'SOLVE';
-  startTime = performance.now();
-
-  let queue = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
-  let visitedS = new Set(['0,0']);
-  window._bfsState = { queue, visitedS, done: false };
-  startAnim();
 }
 
 function stepSolveAnimBFS() {
   if (solvePhase !== 'solving') return false;
   let state = window._bfsState;
-  if (!state || state.done) { solvePhase = 'done'; return false; }
-
-  if (state.queue.length === 0) { state.done = true; solvePhase = 'done'; return false; }
-
+  if (!state || state.done) { solvePhase = 'done'; finishSolve(); return false; }
+  if (state.queue.length === 0) { state.done = true; solvePhase = 'done'; finishSolve(); return false; }
   let current = state.queue.shift();
   currentSolveCell = { x: current.x, y: current.y };
-
   if (current.x === COLS-1 && current.y === ROWS-1) {
-    solutionPath = current.path;
-    state.done = true;
-    solvePhase = 'done';
-    document.getElementById('solvedEl').textContent = 'YES — ' + solutionPath.length + ' steps';
-    return false;
+    solutionPath = current.path; state.done = true; solvePhase = 'done'; finishSolve(); return false;
   }
-
   let c = maze[current.y][current.x];
   let dirs = [];
   if (!c.walls.n && current.y > 0) dirs.push({ nx: current.x, ny: current.y-1 });
   if (!c.walls.s && current.y < ROWS-1) dirs.push({ nx: current.x, ny: current.y+1 });
   if (!c.walls.e && current.x < COLS-1) dirs.push({ nx: current.x+1, ny: current.y });
   if (!c.walls.w && current.x > 0) dirs.push({ nx: current.x-1, ny: current.y });
-
   for (let d of dirs) {
     let nkey = getKey(d.nx, d.ny);
     if (!state.visitedS.has(nkey)) {
@@ -496,46 +715,22 @@ function stepSolveAnimBFS() {
   return true;
 }
 
-function solveDFS() {
-  if (genPhase !== 'done') return;
-  solvePhase = 'solving';
-  solutionPath = [];
-  currentSolveCell = null;
-  document.getElementById('algName').textContent = 'DFS PATHFINDER';
-  document.getElementById('modeName').textContent = 'SOLVE';
-  startTime = performance.now();
-
-  let stack = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
-  let visitedS = new Set(['0,0']);
-  window._dfsState = { stack, visitedS, done: false };
-  startAnim();
-}
-
 function stepSolveAnimDFS() {
   if (solvePhase !== 'solving') return false;
   let state = window._dfsState;
-  if (!state || state.done) { solvePhase = 'done'; return false; }
-
-  if (state.stack.length === 0) { state.done = true; solvePhase = 'done'; return false; }
-
+  if (!state || state.done) { solvePhase = 'done'; finishSolve(); return false; }
+  if (state.stack.length === 0) { state.done = true; solvePhase = 'done'; finishSolve(); return false; }
   let current = state.stack.pop();
   currentSolveCell = { x: current.x, y: current.y };
-
   if (current.x === COLS-1 && current.y === ROWS-1) {
-    solutionPath = current.path;
-    state.done = true;
-    solvePhase = 'done';
-    document.getElementById('solvedEl').textContent = 'YES — ' + solutionPath.length + ' steps';
-    return false;
+    solutionPath = current.path; state.done = true; solvePhase = 'done'; finishSolve(); return false;
   }
-
   let c = maze[current.y][current.x];
   let dirs = [];
   if (!c.walls.n && current.y > 0) dirs.push({ nx: current.x, ny: current.y-1 });
   if (!c.walls.s && current.y < ROWS-1) dirs.push({ nx: current.x, ny: current.y+1 });
   if (!c.walls.e && current.x < COLS-1) dirs.push({ nx: current.x+1, ny: current.y });
   if (!c.walls.w && current.x > 0) dirs.push({ nx: current.x-1, ny: current.y });
-
   for (let d of dirs) {
     let nkey = getKey(d.nx, d.ny);
     if (!state.visitedS.has(nkey)) {
@@ -546,45 +741,82 @@ function stepSolveAnimDFS() {
   return true;
 }
 
-function stepSolve() {
-  // Step through whichever solver is active
-  if (solvePhase === 'done' || solvePhase === 'idle') return;
-  if (solveMode === 'astar') stepSolveAnim();
-  else if (solveMode === 'bfs') stepSolveAnimBFS();
-  else if (solveMode === 'dfs') stepSolveAnimDFS();
-  draw();
+function stepSolveAnimDijkstra() {
+  if (solvePhase !== 'solving') return false;
+  let state = window._dijkstraState;
+  if (!state || state.done) { solvePhase = 'done'; finishSolve(); return false; }
+
+  if (!state.current) {
+    // Init: find minimum distance node
+    let minDist = Infinity, best = null;
+    state.distMap.forEach((dist, key) => {
+      if (dist < minDist) { minDist = dist; best = key; }
+    });
+    if (!best) { state.done = true; solvePhase = 'done'; finishSolve(); return false; }
+    let [x, y] = best.split(',').map(Number);
+    state.current = { x, y, dist: minDist };
+    state.visited = state.visited || new Set();
+    state.visited.add(best);
+    currentSolveCell = { x, y };
+    if (x === COLS-1 && y === ROWS-1) {
+      // Reconstruct
+      solutionPath = reconstructPath(state);
+      state.done = true; solvePhase = 'done'; finishSolve(); return false;
+    }
+  }
+
+  let current = state.current;
+  let c = maze[current.y][current.x];
+  let dirs = [];
+  if (!c.walls.n && current.y > 0) dirs.push({ nx: current.x, ny: current.y-1 });
+  if (!c.walls.s && current.y < ROWS-1) dirs.push({ nx: current.x, ny: current.y+1 });
+  if (!c.walls.e && current.x < COLS-1) dirs.push({ nx: current.x+1, ny: current.y });
+  if (!c.walls.w && current.x > 0) dirs.push({ nx: current.x-1, ny: current.y });
+
+  for (let d of dirs) {
+    let nkey = getKey(d.nx, d.ny);
+    if (!state.visited.has(nkey)) {
+      let newDist = current.dist + 1;
+      let oldDist = state.distMap.get(nkey);
+      if (oldDist === undefined || newDist < oldDist) {
+        state.distMap.set(nkey, newDist);
+        if (!state.parent) state.parent = {};
+        state.parent[nkey] = getKey(current.x, current.y);
+      }
+    }
+  }
+
+  // Find next unvisited node with minimum distance
+  let minDist = Infinity, best = null;
+  state.distMap.forEach((dist, key) => {
+    if (!state.visited.has(key) && dist < minDist) { minDist = dist; best = key; }
+  });
+  if (!best) { state.done = true; solvePhase = 'done'; finishSolve(); return false; }
+  let [x, y] = best.split(',').map(Number);
+  state.current = { x, y, dist: minDist };
+  state.visited.add(best);
+  currentSolveCell = { x, y };
+
+  if (x === COLS-1 && y === ROWS-1) {
+    solutionPath = reconstructPath(state);
+    state.done = true; solvePhase = 'done'; finishSolve(); return false;
+  }
+
+  return true;
 }
 
-function solveBFS() {
-  if (genPhase !== 'done') return;
-  solveMode = 'bfs';
-  solvePhase = 'solving';
-  solutionPath = [];
-  currentSolveCell = null;
-  document.getElementById('algName').textContent = 'BFS PATHFINDER';
-  document.getElementById('modeName').textContent = 'SOLVE';
-  startTime = performance.now();
-
-  let queue = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
-  let visitedS = new Set(['0,0']);
-  window._bfsState = { queue, visitedS, done: false };
-  startAnim();
+function reconstructPath(state) {
+  let path = [];
+  let end = getKey(COLS-1, ROWS-1);
+  let cur = end;
+  while (cur) { let [x, y] = cur.split(',').map(Number); path.unshift({ x, y }); cur = state.parent[cur]; }
+  return path;
 }
 
-function solveDFS() {
-  if (genPhase !== 'done') return;
-  solveMode = 'dfs';
-  solvePhase = 'solving';
-  solutionPath = [];
-  currentSolveCell = null;
-  document.getElementById('algName').textContent = 'DFS PATHFINDER';
-  document.getElementById('modeName').textContent = 'SOLVE';
-  startTime = performance.now();
-
-  let stack = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
-  let visitedS = new Set(['0,0']);
-  window._dfsState = { stack, visitedS, done: false };
-  startAnim();
+function finishSolve() {
+  let elapsed = ((performance.now() - solveStartTime) / 1000).toFixed(2);
+  document.getElementById('solveTime').textContent = elapsed + 's';
+  document.getElementById('pathLen').textContent = solutionPath.length > 0 ? solutionPath.length + ' steps' : '—';
 }
 
 function togglePath() {
@@ -599,31 +831,21 @@ function exportMaze() {
   link.click();
 }
 
-// Override stepSolve to dispatch correctly
-function stepSolve() {
-  if (solvePhase === 'done' || solvePhase === 'idle') return;
-  if (solveMode === 'astar') { if (!stepSolveAnim()) solvePhase = 'done'; }
-  else if (solveMode === 'bfs') { if (!stepSolveAnimBFS()) solvePhase = 'done'; }
-  else if (solveMode === 'dfs') { if (!stepSolveAnimDFS()) solvePhase = 'done'; }
-  draw();
-}
+document.addEventListener('keydown', (e) => {
+  if (e.key === '1') { setGenAlgo('backtrack'); generate(); }
+  else if (e.key === '2') { setGenAlgo('prim'); generate(); }
+  else if (e.key === '3') solve('astar');
+  else if (e.key === '4') solve('bfs');
+  else if (e.key === '5') solve('dfs');
+  else if (e.key === '6') solve('dijkstra');
+  else if (e.key === 'p' || e.key === 'P') togglePath();
+  else if (e.key === 'e' || e.key === 'E') exportMaze();
+  else if (e.key === 'r' || e.key === 'R') { initMaze(); draw(); }
+  else if (e.key === '+' || e.key === '=') { speed = Math.min(20, speed + 2); document.getElementById('speedSlider').value = speed; stepsPerFrame = speed; }
+  else if (e.key === '-') { speed = Math.max(1, speed - 2); document.getElementById('speedSlider').value = speed; stepsPerFrame = speed; }
+});
 
-// Override animate to handle all modes
-let _origAnimate = animate;
-function animate() {
-  let keepGoing = false;
-  if (genPhase === 'generating') keepGoing = stepGen();
-  if (solvePhase === 'solving') {
-    if (solveMode === 'astar') keepGoing = stepSolveAnim();
-    else if (solveMode === 'bfs') keepGoing = stepSolveAnimBFS();
-    else if (solveMode === 'dfs') keepGoing = stepSolveAnimDFS();
-  }
-  draw();
-  if (keepGoing) requestAnimationFrame(animate);
-  else animRunning = false;
-}
-
-window.addEventListener('resize', resize);
+window.addEventListener('resize', () => { resize(); draw(); });
 resize();
 initMaze();
 draw();
