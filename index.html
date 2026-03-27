@@ -188,19 +188,19 @@
   <div id="title">NEON MAZE</div>
   <div id="alg-label">
     GEN: <span id="genName">RECURSIVE BACKTRACKER</span><br>
-    SOLVE: <span id="solveName">—</span><br>
+    SOLVE: <span id="solveName">â€”</span><br>
     DIFFICULTY: <span id="diffName">MEDIUM</span>
   </div>
   <div id="stats">
     CELLS: <span id="cellCount">0</span><br>
     GEN: <span id="genTime">0.0s</span><br>
-    SOLVE: <span id="solveTime">—</span><br>
-    LENGTH: <span id="pathLen">—</span>
+    SOLVE: <span id="solveTime">â€”</span><br>
+    LENGTH: <span id="pathLen">â€”</span>
   </div>
   <div id="legend">
-    <span>■</span> WALLS &nbsp; <span>□</span> PATH<br>
-    <span>●</span> START &nbsp; <span>○</span> END<br>
-    <span>·</span> SOLUTION
+    <span>â– </span> WALLS &nbsp; <span>â–¡</span> PATH<br>
+    <span>â—</span> START &nbsp; <span>â—‹</span> END<br>
+    <span>Â·</span> SOLUTION
   </div>
   <div id="hint">1-2: GEN ALGO &nbsp; 3-6: SOLVE &nbsp; F: FINISH &nbsp; P: PATH &nbsp; E: EXPORT &nbsp; R: RESET &nbsp; +/-: SPEED</div>
   <div id="top-bar">
@@ -322,9 +322,9 @@ function initMaze() {
   genStepCount = 0;
 
   document.getElementById('cellCount').textContent = '0';
-  document.getElementById('solveTime').textContent = '—';
-  document.getElementById('pathLen').textContent = '—';
-  document.getElementById('solveName').textContent = '—';
+  document.getElementById('solveTime').textContent = 'â€”';
+  document.getElementById('pathLen').textContent = 'â€”';
+  document.getElementById('solveName').textContent = 'â€”';
   clearSolveButtons();
 }
 
@@ -408,7 +408,7 @@ function stepPrim() {
       addPrimWalls(wall.x2, wall.y2);
     }
   }
-  // If both inMaze, wall is between two already-connected cells — discard
+  // If both inMaze, wall is between two already-connected cells â€” discard
 
   genStepCount++;
   let total = COLS * ROWS;
@@ -526,7 +526,7 @@ function finishSolve() {
   solvePhase = 'done';
   let elapsed = ((performance.now() - solveStartTime) / 1000).toFixed(2);
   document.getElementById('solveTime').textContent = elapsed + 's';
-  document.getElementById('pathLen').textContent = solutionPath.length > 0 ? solutionPath.length + ' steps' : '—';
+  document.getElementById('pathLen').textContent = solutionPath.length > 0 ? solutionPath.length + ' steps' : 'â€”';
   animRunning = false;
   draw();
 }
@@ -881,11 +881,6 @@ function reconstructPath(state) {
   return path;
 }
 
-function finishSolve() {
-  let elapsed = ((performance.now() - solveStartTime) / 1000).toFixed(2);
-  document.getElementById('solveTime').textContent = elapsed + 's';
-  document.getElementById('pathLen').textContent = solutionPath.length > 0 ? solutionPath.length + ' steps' : '—';
-}
 
 function togglePath() {
   showPath = !showPath;
