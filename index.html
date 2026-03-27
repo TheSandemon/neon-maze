@@ -418,7 +418,14 @@ function stepPrim() {
 
   if (primWalls.length === 0) {
     // All cells visited
+    genPhase = 'done';
+    maze[0][0].isStart = true;
+    maze[ROWS-1][COLS-1].isEnd = true;
     for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) visited[y][x] = true;
+    primActive.clear();
+    let elapsed = ((performance.now() - genStartTime) / 1000).toFixed(1);
+    document.getElementById('genTime').textContent = elapsed + 's';
+    document.getElementById('cellCount').textContent = (COLS * ROWS) + '/' + (COLS * ROWS);
     return false;
   }
   return true;
@@ -433,16 +440,6 @@ function stepGen() {
     for (let i = 0; i < target; i++) {
       let more = stepPrim();
       if (!more) break;
-    }
-    if (primWalls.length === 0 || genStepCount >= COLS * ROWS) {
-      genPhase = 'done';
-      maze[0][0].isStart = true;
-      maze[ROWS-1][COLS-1].isEnd = true;
-      for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) visited[y][x] = true;
-      primActive.clear();
-      let elapsed = ((performance.now() - genStartTime) / 1000).toFixed(1);
-      document.getElementById('genTime').textContent = elapsed + 's';
-      document.getElementById('cellCount').textContent = (COLS * ROWS) + '/' + (COLS * ROWS);
     }
     return genPhase !== 'done';
   }
