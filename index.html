@@ -205,7 +205,7 @@
   <div id="hint">1-2: GEN ALGO &nbsp; 3-6: SOLVE &nbsp; P: PATH &nbsp; E: EXPORT &nbsp; R: RESET &nbsp; +/-: SPEED</div>
   <div id="top-bar">
     <label><span>DIFFICULTY</span><input type="range" id="diffSlider" min="1" max="3" value="2" oninput="setDifficulty(this.value)"></label>
-    <label><span>SPEED</span><input type="range" id="speedSlider" min="1" max="20" value="5" oninput="setSpeed(this.value)"></label>
+    <label><span>SPEED</span><input type="range" id="speedSlider" min="1" max="20" value="15" oninput="setSpeed(this.value)"></label>
   </div>
   <div id="controls">
     <div id="controls-row">
@@ -222,6 +222,7 @@
     </div>
     <div id="controls-row">
       <button class="btn" onclick="generate()">GENERATE</button>
+      <button class="btn" onclick="finishGen()">FINISH</button>
       <button class="btn" onclick="togglePath()">PATH</button>
       <button class="btn" onclick="exportMaze()">EXPORT</button>
     </div>
@@ -248,8 +249,8 @@ let genStartTime = 0;
 let solveStartTime = 0;
 let genAlgo = 'backtrack';
 let difficulty = 2;
-let speed = 5;
-let stepsPerFrame = 5;
+let speed = 15;
+let stepsPerFrame = 15;
 
 const wallColor = '#1a1a1a';
 const pathColor = '#111';
@@ -426,13 +427,21 @@ function stepGen() {
   if (genPhase !== 'generating') return false;
 
   if (genAlgo === 'prim') {
-    let more = stepPrim();
-    if (!more) {
+    // Process all remaining walls if few left, or batch of 20
+    let target = primWalls.length < 50 ? primWalls.length : 20;
+    for (let i = 0; i < target; i++) {
+      let more = stepPrim();
+      if (!more) break;
+    }
+    if (primWalls.length === 0 || genStepCount >= COLS * ROWS) {
       genPhase = 'done';
       maze[0][0].isStart = true;
       maze[ROWS-1][COLS-1].isEnd = true;
+      for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) visited[y][x] = true;
+      primActive.clear();
       let elapsed = ((performance.now() - genStartTime) / 1000).toFixed(1);
       document.getElementById('genTime').textContent = elapsed + 's';
+      document.getElementById('cellCount').textContent = (COLS * ROWS) + '/' + (COLS * ROWS);
     }
     return genPhase !== 'done';
   }
@@ -461,6 +470,36 @@ function stepGen() {
     document.getElementById('genTime').textContent = elapsed + 's';
   }
   return genPhase !== 'done';
+}
+
+function finishGen() {
+  if (genPhase === 'idle' || genPhase === 'done') return;
+  // Instantly complete Prim's
+  while (primWalls.length > 0) { stepPrim(); }
+  // Instantly complete backtracker
+  while (generationStack.length > 0) {
+    let current = generationStack[generationStack.length - 1];
+    let neighbors = getNeighbors(current.x, current.y);
+    if (neighbors.length > 0) {
+      let pick = neighbors[Math.floor(Math.random() * neighbors.length)];
+      carve(current.x, current.y, pick.x, pick.y, pick.dir);
+      maze[pick.y][pick.x].visited = true;
+      visited[pick.y][pick.x] = true;
+      generationStack.push({ x: pick.x, y: pick.y });
+    } else {
+      generationStack.pop();
+    }
+  }
+  genPhase = 'done';
+  maze[0][0].isStart = true;
+  maze[ROWS-1][COLS-1].isEnd = true;
+  for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) visited[y][x] = true;
+  primActive.clear();
+  let elapsed = ((performance.now() - genStartTime) / 1000).toFixed(1);
+  document.getElementById('genTime').textContent = elapsed + 's';
+  document.getElementById('cellCount').textContent = (COLS * ROWS) + '/' + (COLS * ROWS);
+  animRunning = false;
+  draw();
 }
 
 function getCellPos(x, y) {
