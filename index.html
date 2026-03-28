@@ -16,202 +16,168 @@
     width: 100vw;
     height: 100vh;
   }
-  canvas {
-    display: block;
-    position: absolute;
-    top: 0; left: 0;
+  canvas { display: block; position: absolute; top: 0; left: 0; }
+  #crt {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 20;
+    background: repeating-linear-gradient(0deg,rgba(0,0,0,0.12) 0px,rgba(0,0,0,0.12) 1px,transparent 1px,transparent 3px);
+  }
+  #vignette {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 19;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.55) 100%);
   }
   #ui {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 10;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 10;
   }
   #title {
-    position: absolute;
-    top: 18px; left: 50%;
+    position: absolute; top: 18px; left: 50%;
     transform: translateX(-50%);
-    font-family: 'Syncopate', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
+    font-family: 'Syncopate', sans-serif; font-size: 22px; font-weight: 700;
     letter-spacing: 8px;
-    color: #D4A853;
-    text-shadow: 0 0 20px #D4A85388, 0 0 40px #D4A85344;
+    text-shadow: 0 0 20px var(--accent1-dim), 0 0 40px var(--accent1-dim2);
+    transition: color 0.3s, text-shadow 0.3s;
   }
   #controls {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-    pointer-events: all;
-    max-width: 95vw;
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    pointer-events: all; max-width: 95vw;
   }
   .btn {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 10px;
-    letter-spacing: 1px;
-    padding: 7px 14px;
-    background: transparent;
-    border: 1px solid #00ff88;
-    color: #00ff88;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-transform: uppercase;
+    font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 1px;
+    padding: 7px 14px; background: transparent;
+    border: 1px solid var(--accent2); color: var(--accent2);
+    cursor: pointer; transition: all 0.2s; text-transform: uppercase;
   }
-  .btn:hover {
-    background: #00ff8822;
-    box-shadow: 0 0 15px #00ff8844;
-  }
-  .btn.active, .btn.gold.active {
-    background: #D4A85333;
-    border-color: #D4A853;
-    color: #D4A853;
-  }
-  .btn.gold { border-color: #D4A853; color: #D4A853; }
-  .btn.gold:hover { background: #D4A85322; box-shadow: 0 0 15px #D4A85344; }
-  .btn.cyan { border-color: #00ccff; color: #00ccff; }
-  .btn.cyan:hover { background: #00ccff22; box-shadow: 0 0 15px #00ccff44; }
-  .btn.cyan.active { background: #00ccff33; border-color: #00ccff; }
+  .btn:hover { background: var(--accent2-dim); box-shadow: 0 0 15px var(--accent2-dim2); }
+  .btn.active, .btn.gold.active { background: var(--accent1-dim2); border-color: var(--accent1); color: var(--accent1); }
+  .btn.gold { border-color: var(--accent1); color: var(--accent1); }
+  .btn.gold:hover { background: var(--accent1-dim); box-shadow: 0 0 15px var(--accent1-dim2); }
+  .btn.cyan { border-color: var(--accent3); color: var(--accent3); }
+  .btn.cyan:hover { background: var(--accent3-dim); box-shadow: 0 0 15px var(--accent3-dim2); }
+  .btn.cyan.active { background: var(--accent3-dim2); border-color: var(--accent3); }
+  .btn.purple { border-color: #cc66ff; color: #cc66ff; }
+  .btn.purple:hover { background: rgba(204,102,255,0.15); box-shadow: 0 0 15px rgba(204,102,255,0.4); }
+  .btn.purple.active { background: rgba(204,102,255,0.25); border-color: #cc66ff; }
   #stats {
-    position: absolute;
-    top: 18px;
-    right: 20px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: #00ff88;
-    text-align: right;
-    line-height: 1.8;
-    text-shadow: 0 0 8px #00ff8866;
+    position: absolute; top: 18px; right: 20px;
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    text-shadow: 0 0 8px var(--accent2-dim2); line-height: 1.8;
+    text-align: right; transition: color 0.3s;
   }
   #alg-label {
-    position: absolute;
-    top: 18px;
-    left: 20px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: #00ff88;
-    text-shadow: 0 0 8px #00ff8866;
-    line-height: 1.8;
+    position: absolute; top: 18px; left: 20px;
+    font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 2px;
+    text-shadow: 0 0 8px var(--accent2-dim2); line-height: 1.8;
+    transition: color 0.3s;
   }
   #legend {
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: #888;
-    line-height: 2;
-    text-align: right;
+    position: absolute; top: 50%; right: 20px; transform: translateY(-50%);
+    font-family: 'Space Mono', monospace; font-size: 10px; color: #888;
+    line-height: 2; text-align: right;
   }
-  #legend span { color: #D4A853; }
+  #legend span { color: var(--accent1); transition: color 0.3s; }
   #hint {
-    position: absolute;
-    bottom: 72px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: #555;
-    text-align: center;
-    white-space: nowrap;
+    position: absolute; bottom: 72px; left: 50%; transform: translateX(-50%);
+    font-family: 'Space Mono', monospace; font-size: 9px; color: #555;
+    text-align: center; white-space: nowrap;
   }
-  .particle { position: absolute; border-radius: 50%; pointer-events: none; }
   #top-bar {
-    position: absolute;
-    top: 62px;
-    left: 20px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 9px;
-    color: #666;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    position: absolute; top: 62px; left: 20px;
+    font-family: 'Orbitron', sans-serif; font-size: 9px; color: #666;
+    display: flex; flex-direction: column; gap: 4px;
   }
-  #top-bar label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  #top-bar span {
-    color: #00ff88;
-    min-width: 80px;
-  }
+  #top-bar label { display: flex; align-items: center; gap: 8px; }
+  #top-bar span { color: var(--accent2); min-width: 80px; transition: color 0.3s; }
   input[type="range"] {
-    -webkit-appearance: none;
-    width: 100px;
-    height: 4px;
-    background: #333;
-    border-radius: 2px;
-    outline: none;
+    -webkit-appearance: none; width: 100px; height: 4px;
+    background: #333; border-radius: 2px; outline: none;
   }
   input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    background: #00ff88;
-    border-radius: 50%;
-    cursor: pointer;
+    -webkit-appearance: none; width: 12px; height: 12px;
+    background: var(--accent2); border-radius: 50%; cursor: pointer;
+    transition: background 0.3s;
   }
-  #algo-btns {
-    display: flex;
-    gap: 6px;
-    pointer-events: all;
-    flex-wrap: wrap;
-    justify-content: center;
+  #compare-panel {
+    position: absolute; top: 50%; left: 20px; transform: translateY(-50%);
+    font-family: 'Space Mono', monospace; font-size: 9px;
+    display: none; flex-direction: column; gap: 6px;
+    background: rgba(0,0,0,0.6); padding: 10px 12px;
+    border: 1px solid #333; border-radius: 4px;
   }
-  #solve-btns {
-    display: flex;
-    gap: 6px;
-    pointer-events: all;
-    flex-wrap: wrap;
-    justify-content: center;
+  #compare-panel .cmp-row {
+    display: flex; justify-content: space-between; gap: 16px;
+    align-items: center;
   }
-  #controls-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-    pointer-events: all;
+  #compare-panel .cmp-label { color: #888; }
+  #compare-panel .cmp-steps { min-width: 50px; text-align: right; }
+  #compare-panel .cmp-bar-wrap { width: 60px; height: 4px; background: #333; border-radius: 2px; }
+  #compare-panel .cmp-bar { height: 4px; border-radius: 2px; transition: width 0.1s; }
+  #compare-hint {
+    position: absolute; top: 50%; left: 20px; transform: translateY(-50%) translateY(90px);
+    font-family: 'Space Mono', monospace; font-size: 9px; color: #444;
+    display: none;
   }
+  #theme-label {
+    position: absolute; top: 55px; left: 50%; transform: translateX(-50%);
+    font-family: 'Orbitron', sans-serif; font-size: 9px; letter-spacing: 3px;
+    color: var(--accent1); text-shadow: 0 0 8px var(--accent1-dim2);
+    opacity: 0.7; transition: color 0.3s, text-shadow 0.3s;
+  }
+  #mode-hint {
+    position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+    font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1px;
+    color: var(--accent1); text-shadow: 0 0 12px var(--accent1-dim2);
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    text-align: center;
+  }
+  .particle { position: absolute; border-radius: 50%; pointer-events: none; z-index: 15; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div id="crt"></div>
+<div id="vignette"></div>
 <div id="ui">
   <div id="title">NEON MAZE</div>
+  <div id="theme-label">NEON</div>
   <div id="alg-label">
     GEN: <span id="genName">RECURSIVE BACKTRACKER</span><br>
-    SOLVE: <span id="solveName">â€”</span><br>
+    SOLVE: <span id="solveName">—</span><br>
     DIFFICULTY: <span id="diffName">MEDIUM</span>
   </div>
   <div id="stats">
     CELLS: <span id="cellCount">0</span><br>
     GEN: <span id="genTime">0.0s</span><br>
-    SOLVE: <span id="solveTime">â€”</span><br>
-    LENGTH: <span id="pathLen">â€”</span>
+    SOLVE: <span id="solveTime">—</span><br>
+    LENGTH: <span id="pathLen">—</span>
   </div>
   <div id="legend">
-    <span>â– </span> WALLS &nbsp; <span>â–¡</span> PATH<br>
-    <span>â—</span> START &nbsp; <span>â—‹</span> END<br>
-    <span>Â·</span> SOLUTION
+    <span>▣</span> WALLS &nbsp; <span>▤</span> PATH<br>
+    <span>●</span> START &nbsp; <span>◆</span> END<br>
+    <span>·</span> SOLUTION
   </div>
-  <div id="hint">1-2: GEN ALGO &nbsp; 3-6: SOLVE &nbsp; F: FINISH &nbsp; P: PATH &nbsp; E: EXPORT &nbsp; R: RESET &nbsp; +/-: SPEED</div>
+  <div id="hint">1-3: GEN ALGO &nbsp; 4-7: SOLVE &nbsp; F: FINISH &nbsp; P: PATH &nbsp; E: EXPORT &nbsp; R: RESET &nbsp; +/-: SPEED &nbsp; T: THEME &nbsp; C: COMPARE</div>
   <div id="top-bar">
     <label><span>DIFFICULTY</span><input type="range" id="diffSlider" min="1" max="3" value="2" oninput="setDifficulty(this.value)"></label>
     <label><span>SPEED</span><input type="range" id="speedSlider" min="1" max="20" value="15" oninput="setSpeed(this.value)"></label>
   </div>
+  <div id="compare-panel">
+    <div style="font-size:9px;color:#666;margin-bottom:4px;letter-spacing:2px;">SOLVER RACE</div>
+    <div class="cmp-row"><span class="cmp-label" style="color:#00ff88">A*</span><span class="cmp-steps" id="cmp-astar-steps">—</span><div class="cmp-bar-wrap"><div class="cmp-bar" id="cmp-astar-bar" style="background:#00ff88;width:0%"></div></div></div>
+    <div class="cmp-row"><span class="cmp-label" style="color:#00ccff">BFS</span><span class="cmp-steps" id="cmp-bfs-steps">—</span><div class="cmp-bar-wrap"><div class="cmp-bar" id="cmp-bfs-bar" style="background:#00ccff;width:0%"></div></div></div>
+    <div class="cmp-row"><span class="cmp-label" style="color:#ff6644">DFS</span><span class="cmp-steps" id="cmp-dfs-steps">—</span><div class="cmp-bar-wrap"><div class="cmp-bar" id="cmp-dfs-bar" style="background:#ff6644;width:0%"></div></div></div>
+    <div class="cmp-row"><span class="cmp-label" style="color:#cc66ff">DIJKSTRA</span><span class="cmp-steps" id="cmp-dijkstra-steps">—</span><div class="cmp-bar-wrap"><div class="cmp-bar" id="cmp-dijkstra-bar" style="background:#cc66ff;width:0%"></div></div></div>
+  </div>
+  <div id="compare-hint">COMPARE MODE: All solvers running simultaneously</div>
+  <div id="mode-hint"></div>
   <div id="controls">
     <div id="controls-row">
       <div id="algo-btns">
         <button class="btn gold active" id="btn-backtrack" onclick="setGenAlgo('backtrack')">BACKTRACK</button>
         <button class="btn gold" id="btn-prim" onclick="setGenAlgo('prim')">PRIM'S</button>
+        <button class="btn gold" id="btn-division" onclick="setGenAlgo('division')">DIVISION</button>
       </div>
       <div id="solve-btns">
         <button class="btn" id="btn-astar" onclick="solve('astar')">A*</button>
@@ -226,10 +192,89 @@
       <button class="btn" onclick="finishSolve()">FINISH SOLVE</button>
       <button class="btn" onclick="togglePath()">PATH</button>
       <button class="btn" onclick="exportMaze()">EXPORT</button>
+      <button class="btn purple" id="btn-compare" onclick="toggleCompare()">COMPARE</button>
+      <button class="btn purple" id="btn-theme" onclick="cycleTheme()">THEME</button>
     </div>
   </div>
 </div>
 <script>
+// ─── THEME SYSTEM ───────────────────────────────────────────────────────────
+const themes = {
+  neon: {
+    name: 'NEON',
+    accent1: '#D4A853', accent1Dim: 'rgba(212,168,83,0.15)', accent1Dim2: 'rgba(212,168,83,0.3)',
+    accent2: '#00ff88', accent2Dim: 'rgba(0,255,136,0.15)', accent2Dim2: 'rgba(0,255,136,0.3)',
+    accent3: '#00ccff', accent3Dim: 'rgba(0,204,255,0.15)', accent3Dim2: 'rgba(0,204,255,0.3)',
+    wallLine: '#00ff88', visited: 'rgba(0,255,136,0.06)', solution: '#D4A853',
+    dijkstra: '#00ccff', start: '#00ff88', end: '#ff4466',
+    bg: '#0a0a0a', pathFill: '#111', wallFill: '#1a1a1a',
+  },
+  gold: {
+    name: 'GOLD',
+    accent1: '#ffcc00', accent1Dim: 'rgba(255,204,0,0.15)', accent1Dim2: 'rgba(255,204,0,0.3)',
+    accent2: '#ffaa00', accent2Dim: 'rgba(255,170,0,0.15)', accent2Dim2: 'rgba(255,170,0,0.3)',
+    accent3: '#ff6600', accent3Dim: 'rgba(255,102,0,0.15)', accent3Dim2: 'rgba(255,102,0,0.3)',
+    wallLine: '#ffcc00', visited: 'rgba(255,204,0,0.06)', solution: '#ffaa00',
+    dijkstra: '#ff6600', start: '#ffcc00', end: '#ff4466',
+    bg: '#0a0a0a', pathFill: '#111', wallFill: '#1a1a1a',
+  },
+  cyber: {
+    name: 'CYBER',
+    accent1: '#00ccff', accent1Dim: 'rgba(0,204,255,0.15)', accent1Dim2: 'rgba(0,204,255,0.3)',
+    accent2: '#00ffcc', accent2Dim: 'rgba(0,255,204,0.15)', accent2Dim2: 'rgba(0,255,204,0.3)',
+    accent3: '#ff00ff', accent3Dim: 'rgba(255,0,255,0.15)', accent3Dim2: 'rgba(255,0,255,0.3)',
+    wallLine: '#00ccff', visited: 'rgba(0,204,255,0.06)', solution: '#00ffcc',
+    dijkstra: '#ff00ff', start: '#00ffcc', end: '#ff4488',
+    bg: '#080810', pathFill: '#0c0c18', wallFill: '#12121f',
+  },
+  void: {
+    name: 'VOID',
+    accent1: '#cc66ff', accent1Dim: 'rgba(204,102,255,0.15)', accent1Dim2: 'rgba(204,102,255,0.3)',
+    accent2: '#9966ff', accent2Dim: 'rgba(153,102,255,0.15)', accent2Dim2: 'rgba(153,102,255,0.3)',
+    accent3: '#ff66cc', accent3Dim: 'rgba(255,102,204,0.15)', accent3Dim2: 'rgba(255,102,204,0.3)',
+    wallLine: '#9966ff', visited: 'rgba(153,102,255,0.06)', solution: '#cc66ff',
+    dijkstra: '#ff66cc', start: '#cc66ff', end: '#ff4466',
+    bg: '#0a0612', pathFill: '#110d1f', wallFill: '#1a1430',
+  }
+};
+let currentTheme = 'neon';
+let t = themes.neon;
+
+function applyTheme(name) {
+  currentTheme = name;
+  t = themes[name];
+  document.documentElement.style.setProperty('--accent1', t.accent1);
+  document.documentElement.style.setProperty('--accent1-dim', t.accent1Dim);
+  document.documentElement.style.setProperty('--accent1-dim2', t.accent1Dim2);
+  document.documentElement.style.setProperty('--accent2', t.accent2);
+  document.documentElement.style.setProperty('--accent2-dim', t.accent2Dim);
+  document.documentElement.style.setProperty('--accent2-dim2', t.accent2Dim2);
+  document.documentElement.style.setProperty('--accent3', t.accent3);
+  document.documentElement.style.setProperty('--accent3-dim', t.accent3Dim);
+  document.documentElement.style.setProperty('--accent3-dim2', t.accent3Dim2);
+  document.getElementById('title').style.color = t.accent1;
+  document.getElementById('theme-label').textContent = t.name;
+  document.getElementById('theme-label').style.color = t.accent1;
+  draw();
+}
+
+function cycleTheme() {
+  const names = Object.keys(themes);
+  let idx = names.indexOf(currentTheme);
+  idx = (idx + 1) % names.length;
+  applyTheme(names[idx]);
+  showModeHint('THEME: ' + themes[names[idx]].name);
+}
+
+function showModeHint(text) {
+  const el = document.getElementById('mode-hint');
+  el.textContent = text;
+  el.style.opacity = '1';
+  clearTimeout(el._timeout);
+  el._timeout = setTimeout(() => { el.style.opacity = '0'; }, 2000);
+}
+
+// ─── CANVAS + GLOBALS ────────────────────────────────────────────────────────
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 let W, H, COLS, ROWS, cellSize;
@@ -253,16 +298,30 @@ let difficulty = 2;
 let speed = 15;
 let stepsPerFrame = 15;
 
-const wallColor = '#1a1a1a';
-const pathColor = '#111';
-const wallLineColor = '#00ff88';
-const visitedColor = 'rgba(0,255,136,0.08)';
-const solutionColor = '#D4A853';
-const dijkstraColor = '#00ccff';
-const startColor = '#00ff88';
-const endColor = '#ff4466';
+// Custom start/end
+let startCell = null; // {x, y}
+let endCell = null;
+let placingMode = null; // 'start' or 'end'
 
-// Prim's state
+// Compare mode
+let compareMode = false;
+let compareState = {};
+
+// Particles
+let particles = [];
+
+// Recursive Division state
+let divisionRooms = []; // {x, y, w, h} in cell units
+let divisionHwalls = new Set(); // "x,y,orient" = horizontal wall at grid pos
+let divisionVwalls = new Set();
+let divisionWalls = []; // walls added step by step
+let divisionStep = 0;
+let divisionPhase = 'idle';
+let divisionDone = false;
+
+applyTheme('neon');
+
+// ─── PRIM'S STATE ──────────────────────────────────────────────────────────
 let primActive = new Set();
 let primWalls = [];
 let primWallsSet = new Set();
@@ -274,7 +333,6 @@ function resize() {
   canvas.height = H;
   COLS = Math.floor(W / 32);
   ROWS = Math.floor(H / 32);
-  // Adjust by difficulty
   if (difficulty === 1) { COLS = Math.max(8, Math.floor(COLS * 0.6)); ROWS = Math.max(6, Math.floor(ROWS * 0.6)); }
   if (difficulty === 3) { COLS = Math.floor(W / 18); ROWS = Math.floor(H / 18); }
   draw();
@@ -298,7 +356,9 @@ function setGenAlgo(algo) {
   genAlgo = algo;
   document.getElementById('btn-backtrack').classList.toggle('active', algo === 'backtrack');
   document.getElementById('btn-prim').classList.toggle('active', algo === 'prim');
-  document.getElementById('genName').textContent = algo === 'backtrack' ? 'RECURSIVE BACKTRACKER' : "PRIM'S ALGORITHM";
+  document.getElementById('btn-division').classList.toggle('active', algo === 'division');
+  const names = { backtrack: 'RECURSIVE BACKTRACKER', prim: "PRIM'S ALGORITHM", division: 'RECURSIVE DIVISION' };
+  document.getElementById('genName').textContent = names[algo];
 }
 
 function initMaze() {
@@ -307,6 +367,14 @@ function initMaze() {
   primActive = new Set();
   primWalls = [];
   primWallsSet = new Set();
+  divisionRooms = [];
+  divisionHwalls = new Set();
+  divisionVwalls = new Set();
+  divisionWalls = [];
+  divisionStep = 0;
+  divisionPhase = 'idle';
+  divisionDone = false;
+
   for (let y = 0; y < ROWS; y++) {
     maze[y] = [];
     visited[y] = [];
@@ -322,11 +390,19 @@ function initMaze() {
   solvePhase = 'idle';
   genPhase = 'idle';
   genStepCount = 0;
+  startCell = null;
+  endCell = null;
+  compareMode = false;
+  compareState = {};
+  particles = [];
+  document.getElementById('compare-panel').style.display = 'none';
+  document.getElementById('compare-hint').style.display = 'none';
+  document.getElementById('btn-compare').classList.remove('active');
 
   document.getElementById('cellCount').textContent = '0';
-  document.getElementById('solveTime').textContent = 'â€”';
-  document.getElementById('pathLen').textContent = 'â€”';
-  document.getElementById('solveName').textContent = 'â€”';
+  document.getElementById('solveTime').textContent = '—';
+  document.getElementById('pathLen').textContent = '—';
+  document.getElementById('solveName').textContent = '—';
   clearSolveButtons();
 }
 
@@ -347,21 +423,20 @@ function carve(x1, y1, x2, y2, dir) {
 }
 
 function initPrim() {
-  // Start from random cell
   let sx = Math.floor(Math.random() * COLS);
   let sy = Math.floor(Math.random() * ROWS);
   visited[sy][sx] = true;
   maze[sy][sx].inMaze = true;
   maze[sy][sx].visited = true;
   primActive.add(getKey(sx, sy));
-  // Add walls of starting cell
   addPrimWalls(sx, sy);
 }
 
 function getKey(x, y) { return x + ',' + y; }
 
-// Normalized wall key (sorted so wall(A,B) === wall(B,A))
-function wallKey(x1, y1, x2, y2) { return x1 < x2 || (x1 === x2 && y1 < y2) ? x1+','+y1+','+x2+','+y2 : x2+','+y2+','+x1+','+y1; }
+function wallKey(x1, y1, x2, y2) {
+  return x1 < x2 || (x1 === x2 && y1 < y2) ? x1+','+y1+','+x2+','+y2 : x2+','+y2+','+x1+','+y1;
+}
 
 function addPrimWalls(x, y) {
   if (y > 0 && !maze[y-1][x].inMaze) { let k = wallKey(x,y,x,y-1); if (!primWallsSet.has(k)) { primWallsSet.add(k); primWalls.push({ x1: x, y1: y, x2: x, y2: y-1, dir: 'n', key: k }); } }
@@ -372,8 +447,6 @@ function addPrimWalls(x, y) {
 
 function stepPrim() {
   if (primWalls.length === 0) return false;
-
-  // Pick random wall
   let idx = Math.floor(Math.random() * primWalls.length);
   let wall = primWalls.splice(idx, 1)[0];
   if (wall.key) primWallsSet.delete(wall.key);
@@ -397,7 +470,6 @@ function stepPrim() {
     primActive.add(getKey(wall.x1, wall.y1));
     addPrimWalls(wall.x1, wall.y1);
   } else if (!in1 && !in2) {
-    // Both outside - pick one randomly
     if (Math.random() < 0.5) {
       carve(wall.x1, wall.y1, wall.x2, wall.y2, wall.dir);
       visited[wall.y1][wall.x1] = true;
@@ -414,41 +486,160 @@ function stepPrim() {
       addPrimWalls(wall.x2, wall.y2);
     }
   }
-  // If both inMaze, wall is between two already-connected cells â€” discard
-
   genStepCount++;
-  let total = COLS * ROWS;
-  let inMaze = 0;
-  for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (maze[y][x].inMaze) inMaze++;
-  document.getElementById('cellCount').textContent = inMaze + '/' + total;
-
+  updateCellCount();
   if (primWalls.length === 0) {
-    // All cells visited
-    genPhase = 'done';
-    maze[0][0].isStart = true;
-    maze[ROWS-1][COLS-1].isEnd = true;
-    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) visited[y][x] = true;
-    primActive.clear();
-    let elapsed = ((performance.now() - genStartTime) / 1000).toFixed(1);
-    document.getElementById('genTime').textContent = elapsed + 's';
-    document.getElementById('cellCount').textContent = (COLS * ROWS) + '/' + (COLS * ROWS);
+    finishGenPhase();
     return false;
   }
   return true;
 }
 
+// ─── RECURSIVE DIVISION ─────────────────────────────────────────────────────
+function initDivision() {
+  divisionRooms = [{ x: 0, y: 0, w: COLS, h: ROWS }];
+  divisionWalls = [];
+  divisionHwalls = new Set();
+  divisionVwalls = new Set();
+  divisionStep = 0;
+  divisionPhase = 'dividing';
+  divisionDone = false;
+  // Mark all cells as passages (no internal walls)
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      maze[y][x].walls = { n: false, s: false, e: false, w: false };
+      maze[y][x].visited = true;
+      maze[y][x].inMaze = true;
+    }
+  }
+  // Set border walls
+  for (let x = 0; x < COLS; x++) {
+    maze[0][x].walls.n = true;
+    maze[ROWS-1][x].walls.s = true;
+  }
+  for (let y = 0; y < ROWS; y++) {
+    maze[y][0].walls.w = true;
+    maze[y][COLS-1].walls.e = true;
+  }
+}
+
+function stepDivision() {
+  if (divisionPhase !== 'dividing') return false;
+  if (divisionRooms.length === 0) {
+    divisionPhase = 'done';
+    divisionDone = true;
+    finishGenPhase();
+    return false;
+  }
+
+  // Process batches
+  let batch = Math.min(3, divisionRooms.length);
+  for (let b = 0; b < batch; b++) {
+    if (divisionRooms.length === 0) break;
+    let room = divisionRooms.shift();
+    if (room.w <= 1 && room.h <= 1) continue;
+
+    if (room.w > room.h) {
+      // Vertical wall
+      let wallX = room.x + 1 + Math.floor(Math.random() * (room.w - 1));
+      let passageY = room.y + Math.floor(Math.random() * room.h);
+      // Draw vertical wall segments
+      for (let y = room.y; y < room.y + room.h; y++) {
+        if (y !== passageY) {
+          if (wallX > 0 && wallX < COLS && y >= 0 && y < ROWS) {
+            maze[y][wallX].walls.w = true;
+            if (wallX > 0) maze[y][wallX-1].walls.e = true;
+            divisionVwalls.add(wallX + ',' + y);
+            divisionWalls.push({ orient: 'v', x: wallX, y });
+          }
+        }
+      }
+      // Left room
+      divisionRooms.push({ x: room.x, y: room.y, w: wallX - room.x, h: room.h });
+      // Right room
+      divisionRooms.push({ x: wallX, y: room.y, w: room.x + room.w - wallX, h: room.h });
+    } else {
+      // Horizontal wall
+      let wallY = room.y + 1 + Math.floor(Math.random() * (room.h - 1));
+      let passageX = room.x + Math.floor(Math.random() * room.w);
+      for (let x = room.x; x < room.x + room.w; x++) {
+        if (x !== passageX) {
+          if (wallY > 0 && wallY < ROWS && x >= 0 && x < COLS) {
+            maze[wallY][x].walls.n = true;
+            if (wallY > 0) maze[wallY-1][x].walls.s = true;
+            divisionHwalls.add(x + ',' + wallY);
+            divisionWalls.push({ orient: 'h', x, y: wallY });
+          }
+        }
+      }
+      // Top room
+      divisionRooms.push({ x: room.x, y: room.y, w: room.w, h: wallY - room.y });
+      // Bottom room
+      divisionRooms.push({ x: room.x, y: wallY, w: room.w, h: room.y + room.h - wallY });
+    }
+    genStepCount++;
+  }
+  updateCellCount();
+  if (divisionRooms.length === 0) {
+    divisionPhase = 'done';
+    divisionDone = true;
+    finishGenPhase();
+    return false;
+  }
+  return true;
+}
+
+function finishDivision() {
+  while (divisionRooms.length > 0) {
+    let room = divisionRooms.shift();
+    if (room.w <= 1 && room.h <= 1) continue;
+    if (room.w > room.h) {
+      let wallX = room.x + 1 + Math.floor(Math.random() * (room.w - 1));
+      let passageY = room.y + Math.floor(Math.random() * room.h);
+      for (let y = room.y; y < room.y + room.h; y++) {
+        if (y !== passageY && wallX > 0 && wallX < COLS) {
+          maze[y][wallX].walls.w = true;
+          if (wallX > 0) maze[y][wallX-1].walls.e = true;
+        }
+      }
+      divisionRooms.push({ x: room.x, y: room.y, w: wallX - room.x, h: room.h });
+      divisionRooms.push({ x: wallX, y: room.y, w: room.x + room.w - wallX, h: room.h });
+    } else {
+      let wallY = room.y + 1 + Math.floor(Math.random() * (room.h - 1));
+      let passageX = room.x + Math.floor(Math.random() * room.w);
+      for (let x = room.x; x < room.x + room.w; x++) {
+        if (x !== passageX && wallY > 0 && wallY < ROWS) {
+          maze[wallY][x].walls.n = true;
+          if (wallY > 0) maze[wallY-1][x].walls.s = true;
+        }
+      }
+      divisionRooms.push({ x: room.x, y: room.y, w: room.w, h: wallY - room.y });
+      divisionRooms.push({ x: room.x, y: wallY, w: room.w, h: room.y + room.h - wallY });
+    }
+  }
+  divisionPhase = 'done';
+  divisionDone = true;
+  finishGenPhase();
+}
+
+function updateCellCount() {
+  let total = COLS * ROWS;
+  if (genAlgo === 'division') {
+    document.getElementById('cellCount').textContent = genStepCount + '/' + (COLS + ROWS - 2);
+  } else if (genAlgo === 'prim') {
+    let inMaze = 0;
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (maze[y][x].inMaze) inMaze++;
+    document.getElementById('cellCount').textContent = inMaze + '/' + total;
+  } else {
+    document.getElementById('cellCount').textContent = genStepCount;
+  }
+}
+
 function stepGen() {
   if (genPhase !== 'generating') return false;
 
-  if (genAlgo === 'prim') {
-    // Process all remaining walls if few left, or batch of 20
-    let target = primWalls.length < 50 ? primWalls.length : 20;
-    for (let i = 0; i < target; i++) {
-      let more = stepPrim();
-      if (!more) break;
-    }
-    return genPhase !== 'done';
-  }
+  if (genAlgo === 'prim') return stepPrim();
+  if (genAlgo === 'division') return stepDivision();
 
   // Recursive backtracker
   let current = generationStack[generationStack.length - 1];
@@ -467,68 +658,79 @@ function stepGen() {
   document.getElementById('cellCount').textContent = genStepCount;
 
   if (generationStack.length === 0) {
-    genPhase = 'done';
-    maze[0][0].isStart = true;
-    maze[ROWS-1][COLS-1].isEnd = true;
-    let elapsed = ((performance.now() - genStartTime) / 1000).toFixed(1);
-    document.getElementById('genTime').textContent = elapsed + 's';
+    finishGenPhase();
+    return false;
   }
   return genPhase !== 'done';
 }
 
-function finishGen() {
-  if (genPhase === 'idle' || genPhase === 'done') return;
-  // Instantly complete Prim's
-  while (primWalls.length > 0) { stepPrim(); }
-  // Instantly complete backtracker
-  while (generationStack.length > 0) {
-    let current = generationStack[generationStack.length - 1];
-    let neighbors = getNeighbors(current.x, current.y);
-    if (neighbors.length > 0) {
-      let pick = neighbors[Math.floor(Math.random() * neighbors.length)];
-      carve(current.x, current.y, pick.x, pick.y, pick.dir);
-      maze[pick.y][pick.x].visited = true;
-      visited[pick.y][pick.x] = true;
-      generationStack.push({ x: pick.x, y: pick.y });
-    } else {
-      generationStack.pop();
-    }
-  }
+function finishGenPhase() {
   genPhase = 'done';
   maze[0][0].isStart = true;
   maze[ROWS-1][COLS-1].isEnd = true;
+  startCell = { x: 0, y: 0 };
+  endCell = { x: COLS-1, y: ROWS-1 };
   for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) visited[y][x] = true;
   primActive.clear();
+  divisionRooms = [];
   let elapsed = ((performance.now() - genStartTime) / 1000).toFixed(1);
   document.getElementById('genTime').textContent = elapsed + 's';
   document.getElementById('cellCount').textContent = (COLS * ROWS) + '/' + (COLS * ROWS);
   animRunning = false;
   draw();
+  // Spawn celebration particles
+  spawnParticles(W/2, H/2, 30);
+}
+
+function finishGen() {
+  if (genPhase === 'idle' || genPhase === 'done') return;
+  if (genAlgo === 'division') {
+    finishDivision();
+    return;
+  }
+  animRunning = false;
+  if (genAlgo === 'prim') {
+    while (primWalls.length > 0) stepPrim();
+  } else {
+    while (generationStack.length > 0) {
+      let current = generationStack[generationStack.length - 1];
+      let neighbors = getNeighbors(current.x, current.y);
+      if (neighbors.length > 0) {
+        let pick = neighbors[Math.floor(Math.random() * neighbors.length)];
+        carve(current.x, current.y, pick.x, pick.y, pick.dir);
+        maze[pick.y][pick.x].visited = true;
+        visited[pick.y][pick.x] = true;
+        generationStack.push({ x: pick.x, y: pick.y });
+      } else {
+        generationStack.pop();
+      }
+    }
+  }
+  finishGenPhase();
 }
 
 function finishSolve() {
   if (solvePhase === 'idle') return;
   animRunning = false;
   if (solvePhase !== 'done') {
-    if (solveMode === 'astar') {
+    if (compareMode) {
+      finishCompare();
+    } else {
       let state = window._solveState;
-      if (state && !state.done) { while (state.openSet.length > 0) { if (!stepSolveAnim()) break; } }
-    } else if (solveMode === 'bfs') {
-      let state = window._bfsState;
-      if (state && !state.done) { while (state.queue.length > 0) { if (!stepSolveAnimBFS()) break; } }
-    } else if (solveMode === 'dfs') {
-      let state = window._dfsState;
-      if (state && !state.done) { while (state.stack.length > 0) { if (!stepSolveAnimDFS()) break; } }
-    } else if (solveMode === 'dijkstra') {
-      let state = window._dijkstraState;
-      if (state && !state.done) { while (state && !state.done) { if (!stepSolveAnimDijkstra()) break; } }
+      if (state && !state.done) {
+        if (solveMode === 'astar') while (state.openSet.length > 0) { if (!stepSolveAnim()) break; }
+        else if (solveMode === 'bfs') while (state.queue.length > 0) { if (!stepSolveAnimBFS()) break; }
+        else if (solveMode === 'dfs') while (state.stack.length > 0) { if (!stepSolveAnimDFS()) break; }
+        else if (solveMode === 'dijkstra') while (state && !state.done) { if (!stepSolveAnimDijkstra()) break; }
+      }
     }
     solvePhase = 'done';
   }
   let elapsed = ((performance.now() - solveStartTime) / 1000).toFixed(2);
   document.getElementById('solveTime').textContent = elapsed + 's';
-  document.getElementById('pathLen').textContent = solutionPath.length > 0 ? solutionPath.length + ' steps' : '\u2014';
+  document.getElementById('pathLen').textContent = solutionPath.length > 0 ? solutionPath.length + ' steps' : '—';
   draw();
+  if (solutionPath.length > 0) spawnParticles(W/2, H/2, 40);
 }
 
 function getCellPos(x, y) {
@@ -536,7 +738,7 @@ function getCellPos(x, y) {
 }
 
 function draw() {
-  ctx.fillStyle = '#0a0a0a';
+  ctx.fillStyle = t.bg;
   ctx.fillRect(0, 0, W, H);
 
   cellSize = Math.floor(Math.min(W / COLS, H / ROWS));
@@ -548,30 +750,33 @@ function draw() {
       let { px, py } = getCellPos(x, y);
       let c = maze[y] && maze[y][x];
       if (!c) {
-        ctx.fillStyle = pathColor;
+        ctx.fillStyle = t.pathFill;
         ctx.fillRect(offsetX + px, offsetY + py, cellSize, cellSize);
         continue;
       }
-      ctx.fillStyle = pathColor;
+      ctx.fillStyle = t.pathFill;
       ctx.fillRect(offsetX + px, offsetY + py, cellSize, cellSize);
 
       if (visited[y][x] && genPhase === 'done') {
-        ctx.fillStyle = visitedColor;
+        ctx.fillStyle = t.visited;
         ctx.fillRect(offsetX + px + 1, offsetY + py + 1, cellSize - 2, cellSize - 2);
       }
 
-      if (c.isStart) {
-        ctx.fillStyle = startColor;
-        ctx.shadowColor = startColor;
+      // Start cell
+      let isStartCell = startCell && startCell.x === x && startCell.y === y;
+      let isEndCell = endCell && endCell.x === x && endCell.y === y;
+      if (isStartCell || c.isStart) {
+        ctx.fillStyle = t.start;
+        ctx.shadowColor = t.start;
         ctx.shadowBlur = 14;
         ctx.beginPath();
         ctx.arc(offsetX + px + cellSize/2, offsetY + py + cellSize/2, cellSize * 0.28, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
       }
-      if (c.isEnd) {
-        ctx.fillStyle = endColor;
-        ctx.shadowColor = endColor;
+      if (isEndCell || c.isEnd) {
+        ctx.fillStyle = t.end;
+        ctx.shadowColor = t.end;
         ctx.shadowBlur = 14;
         ctx.beginPath();
         ctx.arc(offsetX + px + cellSize/2, offsetY + py + cellSize/2, cellSize * 0.28, 0, Math.PI * 2);
@@ -579,15 +784,30 @@ function draw() {
         ctx.shadowBlur = 0;
       }
 
-      // Current cell in Prim's generation
+      // Placing mode highlight
+      if (placingMode === 'start' && !isStartCell) {
+        ctx.fillStyle = 'rgba(0,255,136,0.06)';
+        ctx.fillRect(offsetX + px + 1, offsetY + py + 1, cellSize - 2, cellSize - 2);
+      }
+      if (placingMode === 'end' && !isEndCell) {
+        ctx.fillStyle = 'rgba(255,68,102,0.06)';
+        ctx.fillRect(offsetX + px + 1, offsetY + py + 1, cellSize - 2, cellSize - 2);
+      }
+
+      // Current Prim cell
       if (genAlgo === 'prim' && primActive.has(getKey(x,y)) && genPhase === 'generating') {
-        ctx.fillStyle = 'rgba(0,255,136,0.15)';
+        ctx.fillStyle = t.accent2Dim;
         ctx.fillRect(offsetX + px + 1, offsetY + py + 1, cellSize - 2, cellSize - 2);
       }
 
-      ctx.strokeStyle = wallLineColor;
+      // Division walls - draw passage grid
+      if (genAlgo === 'division' && genPhase === 'generating') {
+        // nothing extra
+      }
+
+      ctx.strokeStyle = t.wallLine;
       ctx.lineWidth = 1.5;
-      ctx.shadowColor = wallLineColor;
+      ctx.shadowColor = t.wallLine;
       ctx.shadowBlur = 4;
 
       if (c.walls.n) { ctx.beginPath(); ctx.moveTo(offsetX+px, offsetY+py); ctx.lineTo(offsetX+px+cellSize, offsetY+py); ctx.stroke(); }
@@ -598,11 +818,37 @@ function draw() {
     }
   }
 
+  // Compare mode paths
+  if (compareMode && compareState.done) {
+    let modes = ['astar', 'bfs', 'dfs', 'dijkstra'];
+    let colors = { astar: '#00ff88', bfs: '#00ccff', dfs: '#ff6644', dijkstra: '#cc66ff' };
+    for (let m of modes) {
+      let p = compareState[m + 'Path'];
+      if (!p || p.length < 2) continue;
+      ctx.strokeStyle = colors[m];
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = colors[m];
+      ctx.shadowBlur = 6;
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      for (let i = 0; i < p.length; i++) {
+        let { px, py } = getCellPos(p[i].x, p[i].y);
+        let cx = offsetX + px + cellSize/2;
+        let cy = offsetY + py + cellSize/2;
+        if (i === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+  }
+
   // Solution path
-  if (showPath && solutionPath.length > 1 && genPhase === 'done') {
-    let col = solveMode === 'dijkstra' ? dijkstraColor : solutionColor;
+  if (showPath && solutionPath.length > 1 && genPhase === 'done()' || (showPath && solutionPath.length > 1 && genPhase === 'done')) {
+    let col = solveMode === 'dijkstra' ? t.dijkstra : t.solution;
     ctx.strokeStyle = col;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
     ctx.shadowColor = col;
     ctx.shadowBlur = 10;
     ctx.beginPath();
@@ -620,9 +866,51 @@ function draw() {
   // Current solve cell
   if (currentSolveCell && solvePhase === 'solving') {
     let { px, py } = getCellPos(currentSolveCell.x, currentSolveCell.y);
-    let col = solveMode === 'dijkstra' ? dijkstraColor : '#00ff8844';
+    let col = solveMode === 'dijkstra' ? t.dijkstra : t.accent2Dim;
     ctx.fillStyle = col;
     ctx.fillRect(offsetX + px + 2, offsetY + py + 2, cellSize - 4, cellSize - 4);
+  }
+
+  // Particles
+  for (let p of particles) {
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+}
+
+function spawnParticles(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    let angle = Math.random() * Math.PI * 2;
+    let speed = 2 + Math.random() * 5;
+    let colors = [t.accent1, t.accent2, t.accent3, '#ffffff'];
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      r: 2 + Math.random() * 4,
+      life: 1,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      decay: 0.015 + Math.random() * 0.02
+    });
+  }
+}
+
+function updateParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    let p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vx *= 0.96;
+    p.vy *= 0.96;
+    p.life -= p.decay;
+    if (p.life <= 0) particles.splice(i, 1);
   }
 }
 
@@ -634,13 +922,15 @@ function animate() {
   }
   for (let i = 0; i < stepsPerFrame; i++) {
     if (solvePhase === 'solving') {
-      if (solveMode === 'astar') keepGoing = stepSolveAnim();
+      if (compareMode) keepGoing = stepCompare();
+      else if (solveMode === 'astar') keepGoing = stepSolveAnim();
       else if (solveMode === 'bfs') keepGoing = stepSolveAnimBFS();
       else if (solveMode === 'dfs') keepGoing = stepSolveAnimDFS();
       else if (solveMode === 'dijkstra') keepGoing = stepSolveAnimDijkstra();
     }
   }
 
+  updateParticles();
   draw();
   if (keepGoing) requestAnimationFrame(animate);
   else animRunning = false;
@@ -657,6 +947,8 @@ function generate() {
   initMaze();
   if (genAlgo === 'prim') {
     initPrim();
+  } else if (genAlgo === 'division') {
+    initDivision();
   } else {
     let sx = Math.floor(Math.random() * COLS);
     let sy = Math.floor(Math.random() * ROWS);
@@ -669,8 +961,20 @@ function generate() {
   startAnim();
 }
 
+// ─── SOLVER STATE HELPERS ───────────────────────────────────────────────────
+function clearSolveState() {
+  window._solveState = null;
+  window._bfsState = null;
+  window._dfsState = null;
+  window._dijkstraState = null;
+}
+
 function solve(mode) {
   if (genPhase !== 'done') return;
+  if (compareMode) {
+    showModeHint('Disable COMPARE mode first (C key)');
+    return;
+  }
   solveMode = mode;
   solvePhase = 'solving';
   solutionPath = [];
@@ -680,30 +984,32 @@ function solve(mode) {
   solveStartTime = performance.now();
   clearSolveButtons();
   document.getElementById('btn-' + mode).classList.add('active');
-  window._solveState = null;
-  window._bfsState = null;
-  window._dfsState = null;
-  window._dijkstraState = null;
+  clearSolveState();
+
+  let sx = startCell ? startCell.x : 0;
+  let sy = startCell ? startCell.y : 0;
+  let ex = endCell ? endCell.x : COLS-1;
+  let ey = endCell ? endCell.y : ROWS-1;
 
   if (mode === 'astar') {
-    let start = { x: 0, y: 0, g: 0, h: heuristic(0, 0), f: 0, parent: null };
+    let start = { x: sx, y: sy, g: 0, h: heuristic(sx, sy, ex, ey), f: 0, parent: null };
     start.f = start.g + start.h;
     let openSet = [start];
     let closedSet = new Set();
-    window._solveState = { openSet, closedSet, done: false };
+    window._solveState = { openSet, closedSet, done: false, sx, sy, ex, ey };
   } else if (mode === 'bfs') {
-    let queue = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
-    let visitedS = new Set(['0,0']);
-    window._bfsState = { queue, visitedS, done: false };
+    let queue = [{ x: sx, y: sy, path: [{ x: sx, y: sy }] }];
+    let visitedS = new Set([sx+','+sy]);
+    window._bfsState = { queue, visitedS, done: false, sx, sy, ex, ey };
   } else if (mode === 'dfs') {
-    let stack = [{ x: 0, y: 0, path: [{ x: 0, y: 0 }] }];
-    let visitedS = new Set(['0,0']);
-    window._dfsState = { stack, visitedS, done: false };
+    let stack = [{ x: sx, y: sy, path: [{ x: sx, y: sy }] }];
+    let visitedS = new Set([sx+','+sy]);
+    window._dfsState = { stack, visitedS, done: false, sx, sy, ex, ey };
   } else if (mode === 'dijkstra') {
-    let start = { x: 0, y: 0, dist: 0, parent: null };
+    let start = { x: sx, y: sy, dist: 0, parent: null };
     let distMap = new Map();
-    distMap.set('0,0', 0);
-    window._dijkstraState = { distMap, done: false, current: null };
+    distMap.set(sx+','+sy, 0);
+    window._dijkstraState = { distMap, done: false, current: null, visited: null, parent: {}, sx, sy, ex, ey };
   }
   startAnim();
 }
@@ -715,25 +1021,25 @@ function clearSolveButtons() {
   document.getElementById('btn-dijkstra').classList.remove('active');
 }
 
-function heuristic(x, y) {
-  return Math.abs(x - (COLS-1)) + Math.abs(y - (ROWS-1));
+function heuristic(x, y, ex, ey) {
+  return Math.abs(x - ex) + Math.abs(y - ey);
 }
 
 function stepSolveAnim() {
   if (solvePhase !== 'solving') return false;
   let state = window._solveState;
-  if (!state || state.done) { solvePhase = 'done'; finishSolve(); return false; }
-  if (state.openSet.length === 0) { state.done = true; solvePhase = 'done'; finishSolve(); return false; }
+  if (!state || state.done) { solvePhase = 'done'; return false; }
+  if (state.openSet.length === 0) { state.done = true; solvePhase = 'done'; return false; }
   state.openSet.sort((a, b) => a.f - b.f);
   let current = state.openSet.shift();
   let key = getKey(current.x, current.y);
   if (state.closedSet.has(key)) return true;
   state.closedSet.add(key);
   currentSolveCell = { x: current.x, y: current.y };
-  if (current.x === COLS-1 && current.y === ROWS-1) {
+  if (current.x === state.ex && current.y === state.ey) {
     let node = current;
     while (node) { solutionPath.unshift({ x: node.x, y: node.y }); node = node.parent; }
-    state.done = true; solvePhase = 'done'; finishSolve(); return false;
+    state.done = true; solvePhase = 'done'; return false;
   }
   let c = maze[current.y][current.x];
   let dirs = [];
@@ -747,7 +1053,7 @@ function stepSolveAnim() {
       let g = current.g + 1;
       let existing = state.openSet.find(n => n.x === d.nx && n.y === d.ny);
       if (!existing) {
-        let h = heuristic(d.nx, d.ny);
+        let h = heuristic(d.nx, d.ny, state.ex, state.ey);
         state.openSet.push({ x: d.nx, y: d.ny, g, h, f: g+h, parent: current });
       } else if (g < existing.g) {
         existing.g = g; existing.f = g + existing.h; existing.parent = current;
@@ -760,12 +1066,12 @@ function stepSolveAnim() {
 function stepSolveAnimBFS() {
   if (solvePhase !== 'solving') return false;
   let state = window._bfsState;
-  if (!state || state.done) { solvePhase = 'done'; finishSolve(); return false; }
-  if (state.queue.length === 0) { state.done = true; solvePhase = 'done'; finishSolve(); return false; }
+  if (!state || state.done) { solvePhase = 'done'; return false; }
+  if (state.queue.length === 0) { state.done = true; solvePhase = 'done'; return false; }
   let current = state.queue.shift();
   currentSolveCell = { x: current.x, y: current.y };
-  if (current.x === COLS-1 && current.y === ROWS-1) {
-    solutionPath = current.path; state.done = true; solvePhase = 'done'; finishSolve(); return false;
+  if (current.x === state.ex && current.y === state.ey) {
+    solutionPath = current.path; state.done = true; solvePhase = 'done'; return false;
   }
   let c = maze[current.y][current.x];
   let dirs = [];
@@ -786,12 +1092,12 @@ function stepSolveAnimBFS() {
 function stepSolveAnimDFS() {
   if (solvePhase !== 'solving') return false;
   let state = window._dfsState;
-  if (!state || state.done) { solvePhase = 'done'; finishSolve(); return false; }
-  if (state.stack.length === 0) { state.done = true; solvePhase = 'done'; finishSolve(); return false; }
+  if (!state || state.done) { solvePhase = 'done'; return false; }
+  if (state.stack.length === 0) { state.done = true; solvePhase = 'done'; return false; }
   let current = state.stack.pop();
   currentSolveCell = { x: current.x, y: current.y };
-  if (current.x === COLS-1 && current.y === ROWS-1) {
-    solutionPath = current.path; state.done = true; solvePhase = 'done'; finishSolve(); return false;
+  if (current.x === state.ex && current.y === state.ey) {
+    solutionPath = current.path; state.done = true; solvePhase = 'done'; return false;
   }
   let c = maze[current.y][current.x];
   let dirs = [];
@@ -812,24 +1118,22 @@ function stepSolveAnimDFS() {
 function stepSolveAnimDijkstra() {
   if (solvePhase !== 'solving') return false;
   let state = window._dijkstraState;
-  if (!state || state.done) { solvePhase = 'done'; finishSolve(); return false; }
+  if (!state || state.done) { solvePhase = 'done'; return false; }
 
   if (!state.current) {
-    // Init: find minimum distance node
     let minDist = Infinity, best = null;
     state.distMap.forEach((dist, key) => {
       if (dist < minDist) { minDist = dist; best = key; }
     });
-    if (!best) { state.done = true; solvePhase = 'done'; finishSolve(); return false; }
+    if (!best) { state.done = true; solvePhase = 'done'; return false; }
     let [x, y] = best.split(',').map(Number);
     state.current = { x, y, dist: minDist };
     state.visited = state.visited || new Set();
     state.visited.add(best);
     currentSolveCell = { x, y };
-    if (x === COLS-1 && y === ROWS-1) {
-      // Reconstruct
-      solutionPath = reconstructPath(state);
-      state.done = true; solvePhase = 'done'; finishSolve(); return false;
+    if (x === state.ex && y === state.ey) {
+      solutionPath = reconstructPathDijkstra(state);
+      state.done = true; solvePhase = 'done'; return false;
     }
   }
 
@@ -854,33 +1158,373 @@ function stepSolveAnimDijkstra() {
     }
   }
 
-  // Find next unvisited node with minimum distance
   let minDist = Infinity, best = null;
   state.distMap.forEach((dist, key) => {
     if (!state.visited.has(key) && dist < minDist) { minDist = dist; best = key; }
   });
-  if (!best) { state.done = true; solvePhase = 'done'; finishSolve(); return false; }
+  if (!best) { state.done = true; solvePhase = 'done'; return false; }
   let [x, y] = best.split(',').map(Number);
   state.current = { x, y, dist: minDist };
   state.visited.add(best);
   currentSolveCell = { x, y };
 
-  if (x === COLS-1 && y === ROWS-1) {
-    solutionPath = reconstructPath(state);
-    state.done = true; solvePhase = 'done'; finishSolve(); return false;
+  if (x === state.ex && y === state.ey) {
+    solutionPath = reconstructPathDijkstra(state);
+    state.done = true; solvePhase = 'done'; return false;
   }
-
   return true;
 }
 
-function reconstructPath(state) {
+function reconstructPathDijkstra(state) {
   let path = [];
-  let end = getKey(COLS-1, ROWS-1);
+  let end = getKey(state.ex, state.ey);
   let cur = end;
   while (cur) { let [x, y] = cur.split(',').map(Number); path.unshift({ x, y }); cur = state.parent[cur]; }
   return path;
 }
 
+// ─── COMPARE MODE ────────────────────────────────────────────────────────────
+function toggleCompare() {
+  if (genPhase !== 'done') {
+    showModeHint('Generate maze first');
+    return;
+  }
+  compareMode = !compareMode;
+  document.getElementById('btn-compare').classList.toggle('active', compareMode);
+  document.getElementById('compare-panel').style.display = compareMode ? 'flex' : 'none';
+  document.getElementById('compare-hint').style.display = compareMode ? 'block' : 'none';
+
+  if (compareMode) {
+    solvePhase = 'idle';
+    solutionPath = [];
+    currentSolveCell = null;
+    clearSolveButtons();
+    document.getElementById('solveName').textContent = 'RACE!';
+
+    let sx = startCell ? startCell.x : 0;
+    let sy = startCell ? startCell.y : 0;
+    let ex = endCell ? endCell.x : COLS-1;
+    let ey = endCell ? endCell.y : ROWS-1;
+
+    // Init all 4 solvers simultaneously
+    // A*
+    let astart = { x: sx, y: sy, g: 0, h: heuristic(sx, sy, ex, ey), f: 0, parent: null };
+    astart.f = astart.g + astart.h;
+    window._solveState = { openSet: [astart], closedSet: new Set(), done: false, sx, sy, ex, ey, steps: 0 };
+
+    // BFS
+    window._bfsState = { queue: [{ x: sx, y: sy, path: [{ x: sx, y: sy }] }], visitedS: new Set([sx+','+sy]), done: false, sx, sy, ex, ey, steps: 0 };
+
+    // DFS
+    window._dfsState = { stack: [{ x: sx, y: sy, path: [{ x: sx, y: sy }] }], visitedS: new Set([sx+','+sy]), done: false, sx, sy, ex, ey, steps: 0 };
+
+    // Dijkstra
+    let dmap = new Map(); dmap.set(sx+','+sy, 0);
+    window._dijkstraState = { distMap: dmap, done: false, current: null, visited: new Set(), parent: {}, sx, sy, ex, ey, steps: 0 };
+
+    compareState = { done: false, doneCount: 0, astarPath: null, bfsPath: null, dfsPath: null, dijkstraPath: null };
+    solvePhase = 'solving';
+    solveStartTime = performance.now();
+    startAnim();
+  } else {
+    solvePhase = 'idle';
+    compareState = {};
+    document.getElementById('cmp-astar-steps').textContent = '—';
+    document.getElementById('cmp-bfs-steps').textContent = '—';
+    document.getElementById('cmp-dfs-steps').textContent = '—';
+    document.getElementById('cmp-dijkstra-steps').textContent = '—';
+    document.getElementById('cmp-astar-bar').style.width = '0%';
+    document.getElementById('cmp-bfs-bar').style.width = '0%';
+    document.getElementById('cmp-dfs-bar').style.width = '0%';
+    document.getElementById('cmp-dijkstra-bar').style.width = '0%';
+  }
+}
+
+function stepCompare() {
+  if (solvePhase !== 'solving' || !compareMode) return false;
+  let allDone = true;
+  let maxSteps = 0;
+
+  // A*
+  let as = window._solveState;
+  if (as && !as.done) {
+    for (let i = 0; i < 2; i++) {
+      if (as.openSet.length === 0) { as.done = true; break; }
+      as.openSet.sort((a, b) => a.f - b.f);
+      let cur = as.openSet.shift();
+      let key = getKey(cur.x, cur.y);
+      if (as.closedSet.has(key)) { as.steps++; continue; }
+      as.closedSet.add(key);
+      as.steps++;
+      if (cur.x === as.ex && cur.y === as.ey) {
+        let node = cur;
+        while (node) { compareState.astarPath.unshift({ x: node.x, y: node.y }); node = node.parent; }
+        as.done = true; break;
+      }
+      let c = maze[cur.y][cur.x];
+      let dirs = [];
+      if (!c.walls.n && cur.y > 0) dirs.push({ nx: cur.x, ny: cur.y-1 });
+      if (!c.walls.s && cur.y < ROWS-1) dirs.push({ nx: cur.x, ny: cur.y+1 });
+      if (!c.walls.e && cur.x < COLS-1) dirs.push({ nx: cur.x+1, ny: cur.y });
+      if (!c.walls.w && cur.x > 0) dirs.push({ nx: cur.x-1, ny: cur.y });
+      for (let d of dirs) {
+        let nkey = getKey(d.nx, d.ny);
+        if (!as.closedSet.has(nkey)) {
+          let g = cur.g + 1;
+          let existing = as.openSet.find(n => n.x === d.nx && n.y === d.ny);
+          if (!existing) as.openSet.push({ x: d.nx, y: d.ny, g, h: heuristic(d.nx, d.ny, as.ex, as.ey), f: g + heuristic(d.nx, d.ny, as.ex, as.ey), parent: cur });
+          else if (g < existing.g) { existing.g = g; existing.f = g + existing.h; existing.parent = cur; }
+        }
+      }
+    }
+    if (!as.done) allDone = false;
+    maxSteps = Math.max(maxSteps, as.steps);
+  }
+
+  // BFS
+  let bs = window._bfsState;
+  if (bs && !bs.done) {
+    for (let i = 0; i < 2; i++) {
+      if (bs.queue.length === 0) { bs.done = true; break; }
+      let cur = bs.queue.shift();
+      bs.steps++;
+      if (cur.x === bs.ex && cur.y === bs.ey) {
+        compareState.bfsPath = cur.path; bs.done = true; break;
+      }
+      let c = maze[cur.y][cur.x];
+      let dirs = [];
+      if (!c.walls.n && cur.y > 0) dirs.push({ nx: cur.x, ny: cur.y-1 });
+      if (!c.walls.s && cur.y < ROWS-1) dirs.push({ nx: cur.x, ny: cur.y+1 });
+      if (!c.walls.e && cur.x < COLS-1) dirs.push({ nx: cur.x+1, ny: cur.y });
+      if (!c.walls.w && cur.x > 0) dirs.push({ nx: cur.x-1, ny: cur.y });
+      for (let d of dirs) {
+        let nkey = getKey(d.nx, d.ny);
+        if (!bs.visitedS.has(nkey)) { bs.visitedS.add(nkey); bs.queue.push({ x: d.nx, y: d.ny, path: cur.path.concat([{ x: d.nx, y: d.ny }]) }); }
+      }
+    }
+    if (!bs.done) allDone = false;
+    maxSteps = Math.max(maxSteps, bs.steps);
+  }
+
+  // DFS
+  let ds = window._dfsState;
+  if (ds && !ds.done) {
+    for (let i = 0; i < 2; i++) {
+      if (ds.stack.length === 0) { ds.done = true; break; }
+      let cur = ds.stack.pop();
+      ds.steps++;
+      if (cur.x === ds.ex && cur.y === ds.ey) {
+        compareState.dfsPath = cur.path; ds.done = true; break;
+      }
+      let c = maze[cur.y][cur.x];
+      let dirs = [];
+      if (!c.walls.n && cur.y > 0) dirs.push({ nx: cur.x, ny: cur.y-1 });
+      if (!c.walls.s && cur.y < ROWS-1) dirs.push({ nx: cur.x, ny: cur.y+1 });
+      if (!c.walls.e && cur.x < COLS-1) dirs.push({ nx: cur.x+1, ny: cur.y });
+      if (!c.walls.w && cur.x > 0) dirs.push({ nx: cur.x-1, ny: cur.y });
+      for (let d of dirs) {
+        let nkey = getKey(d.nx, d.ny);
+        if (!ds.visitedS.has(nkey)) { ds.visitedS.add(nkey); ds.stack.push({ x: d.nx, y: d.ny, path: cur.path.concat([{ x: d.nx, y: d.ny }]) }); }
+      }
+    }
+    if (!ds.done) allDone = false;
+    maxSteps = Math.max(maxSteps, ds.steps);
+  }
+
+  // Dijkstra
+  let djs = window._dijkstraState;
+  if (djs && !djs.done) {
+    if (!djs.current) {
+      djs.current = { x: djs.sx, y: djs.sy, dist: 0 };
+      djs.visited.add(djs.sx+','+djs.sy);
+      djs.steps = 1;
+      if (djs.sx === djs.ex && djs.sy === djs.ey) { djs.done = true; compareState.dijkstraPath = [{ x: djs.sx, y: djs.sy }]; }
+    }
+    if (!djs.done) {
+      let cur = djs.current;
+      let c = maze[cur.y][cur.x];
+      let dirs = [];
+      if (!c.walls.n && cur.y > 0) dirs.push({ nx: cur.x, ny: cur.y-1 });
+      if (!c.walls.s && cur.y < ROWS-1) dirs.push({ nx: cur.x, ny: cur.y+1 });
+      if (!c.walls.e && cur.x < COLS-1) dirs.push({ nx: cur.x+1, ny: cur.y });
+      if (!c.walls.w && cur.x > 0) dirs.push({ nx: cur.x-1, ny: cur.y });
+      for (let d of dirs) {
+        let nkey = getKey(d.nx, d.ny);
+        if (!djs.visited.has(nkey)) {
+          let newDist = cur.dist + 1;
+          let oldDist = djs.distMap.get(nkey);
+          if (oldDist === undefined || newDist < oldDist) { djs.distMap.set(nkey, newDist); djs.parent[nkey] = getKey(cur.x, cur.y); }
+        }
+      }
+      let minDist = Infinity, best = null;
+      djs.distMap.forEach((dist, key) => { if (!djs.visited.has(key) && dist < minDist) { minDist = dist; best = key; } });
+      if (!best) { djs.done = true; }
+      else {
+        let [x, y] = best.split(',').map(Number);
+        djs.current = { x, y, dist: minDist };
+        djs.visited.add(best);
+        djs.steps++;
+        if (x === djs.ex && y === djs.ey) {
+          djs.done = true;
+          let path = []; let cur = best;
+          while (cur) { let [px, py] = cur.split(',').map(Number); path.unshift({ x: px, y: py }); cur = djs.parent[cur]; }
+          compareState.dijkstraPath = path;
+        }
+      }
+    }
+    if (!djs.done) allDone = false;
+    maxSteps = Math.max(maxSteps, djs.steps);
+  }
+
+  // Update UI
+  let updateBar = (id, steps, len) => {
+    let bar = document.getElementById('cmp-' + id + '-bar');
+    let txt = document.getElementById('cmp-' + id + '-steps');
+    let pct = maxSteps > 0 ? Math.min(100, (steps / maxSteps) * 100) : 0;
+    bar.style.width = pct + '%';
+    txt.textContent = len !== null ? len : steps;
+  };
+  updateBar('astar', as ? as.steps : 0, compareState.astarPath ? compareState.astarPath.length : null);
+  updateBar('bfs', bs ? bs.steps : 0, compareState.bfsPath ? compareState.bfsPath.length : null);
+  updateBar('dfs', ds ? ds.steps : 0, compareState.dfsPath ? compareState.dfsPath.length : null);
+  updateBar('dijkstra', djs ? djs.steps : 0, compareState.dijkstraPath ? compareState.dijkstraPath.length : null);
+
+  if (allDone) {
+    compareState.done = true;
+    solvePhase = 'done';
+    animRunning = false;
+    // Pick shortest path as "winner"
+    let paths = [
+      { name: 'A*', len: compareState.astarPath ? compareState.astarPath.length : Infinity },
+      { name: 'BFS', len: compareState.bfsPath ? compareState.bfsPath.length : Infinity },
+      { name: 'DFS', len: compareState.dfsPath ? compareState.dfsPath.length : Infinity },
+      { name: 'DIJKSTRA', len: compareState.dijkstraPath ? compareState.dijkstraPath.length : Infinity }
+    ];
+    let winner = paths.reduce((a, b) => a.len < b.len ? a : b);
+    showModeHint('WINNER: ' + winner.name + ' (' + winner.len + ' steps)');
+    spawnParticles(W/2, H/2, 50);
+    draw();
+    return false;
+  }
+  return true;
+}
+
+function finishCompare() {
+  let allDone = true;
+  let finishOne = (state, key) => {
+    if (!state || state.done) return;
+    if (key === 'astar') {
+      while (state.openSet.length > 0) {
+        state.openSet.sort((a, b) => a.f - b.f);
+        let cur = state.openSet.shift();
+        state.closedSet.add(getKey(cur.x, cur.y));
+        state.steps++;
+        if (cur.x === state.ex && cur.y === state.ey) {
+          let node = cur; while (node) { compareState.astarPath.unshift({ x: node.x, y: node.y }); node = node.parent; }
+          state.done = true; break;
+        }
+        let c = maze[cur.y][cur.x];
+        if (!c.walls.n && cur.y > 0) addAstar(state, cur.x, cur.y-1, cur);
+        if (!c.walls.s && cur.y < ROWS-1) addAstar(state, cur.x, cur.y+1, cur);
+        if (!c.walls.e && cur.x < COLS-1) addAstar(state, cur.x+1, cur.y, cur);
+        if (!c.walls.w && cur.x > 0) addAstar(state, cur.x-1, cur.y, cur);
+      }
+      if (state.openSet.length === 0 && !state.done) state.done = true;
+    } else if (key === 'bfs') {
+      while (state.queue.length > 0) {
+        let cur = state.queue.shift();
+        state.steps++;
+        if (cur.x === state.ex && cur.y === state.ey) { compareState.bfsPath = cur.path; state.done = true; break; }
+        let c = maze[cur.y][cur.x];
+        if (!c.walls.n && cur.y > 0) addBfs(state, cur.x, cur.y-1, cur);
+        if (!c.walls.s && cur.y < ROWS-1) addBfs(state, cur.x, cur.y+1, cur);
+        if (!c.walls.e && cur.x < COLS-1) addBfs(state, cur.x+1, cur.y, cur);
+        if (!c.walls.w && cur.x > 0) addBfs(state, cur.x-1, cur.y, cur);
+      }
+      if (state.queue.length === 0 && !state.done) state.done = true;
+    } else if (key === 'dfs') {
+      while (state.stack.length > 0) {
+        let cur = state.stack.pop();
+        state.steps++;
+        if (cur.x === state.ex && cur.y === state.ey) { compareState.dfsPath = cur.path; state.done = true; break; }
+        let c = maze[cur.y][cur.x];
+        if (!c.walls.n && cur.y > 0) addDfs(state, cur.x, cur.y-1, cur);
+        if (!c.walls.s && cur.y < ROWS-1) addDfs(state, cur.x, cur.y+1, cur);
+        if (!c.walls.e && cur.x < COLS-1) addDfs(state, cur.x+1, cur.y, cur);
+        if (!c.walls.w && cur.x > 0) addDfs(state, cur.x-1, cur.y, cur);
+      }
+      if (state.stack.length === 0 && !state.done) state.done = true;
+    } else if (key === 'dijkstra') {
+      while (!state.done) {
+        if (!state.current) {
+          state.current = { x: state.sx, y: state.sy, dist: 0 };
+          state.visited.add(state.sx+','+state.sy);
+          state.steps = 1;
+          if (state.sx === state.ex && state.sy === state.ey) { state.done = true; compareState.dijkstraPath = [{ x: state.sx, y: state.sy }]; break; }
+        }
+        let cur = state.current;
+        let c = maze[cur.y][cur.x];
+        let dirs = [];
+        if (!c.walls.n && cur.y > 0) dirs.push({ nx: cur.x, ny: cur.y-1 });
+        if (!c.walls.s && cur.y < ROWS-1) dirs.push({ nx: cur.x, ny: cur.y+1 });
+        if (!c.walls.e && cur.x < COLS-1) dirs.push({ nx: cur.x+1, ny: cur.y });
+        if (!c.walls.w && cur.x > 0) dirs.push({ nx: cur.x-1, ny: cur.y });
+        for (let d of dirs) {
+          let nkey = getKey(d.nx, d.ny);
+          if (!state.visited.has(nkey)) {
+            let newDist = cur.dist + 1;
+            let oldDist = state.distMap.get(nkey);
+            if (oldDist === undefined || newDist < oldDist) { state.distMap.set(nkey, newDist); state.parent[nkey] = getKey(cur.x, cur.y); }
+          }
+        }
+        let minDist = Infinity, best = null;
+        state.distMap.forEach((dist, key) => { if (!state.visited.has(key) && dist < minDist) { minDist = dist; best = key; } });
+        if (!best) { state.done = true; break; }
+        let [x, y] = best.split(',').map(Number);
+        state.current = { x, y, dist: minDist };
+        state.visited.add(best);
+        state.steps++;
+        if (x === state.ex && y === state.ey) {
+          state.done = true;
+          let path = []; let c = best;
+          while (c) { let [px, py] = c.split(',').map(Number); path.unshift({ x: px, y: py }); c = state.parent[c]; }
+          compareState.dijkstraPath = path;
+        }
+      }
+    }
+    if (!state.done) allDone = false;
+  };
+  finishOne(window._solveState, 'astar');
+  finishOne(window._bfsState, 'bfs');
+  finishOne(window._dfsState, 'dfs');
+  finishOne(window._dijkstraState, 'dijkstra');
+  compareState.done = true;
+  solvePhase = 'done';
+  let elapsed = ((performance.now() - solveStartTime) / 1000).toFixed(2);
+  document.getElementById('solveTime').textContent = elapsed + 's';
+  draw();
+}
+
+function addAstar(state, nx, ny, parent) {
+  let nkey = getKey(nx, ny);
+  if (state.closedSet.has(nkey)) return;
+  let g = parent.g + 1;
+  let existing = state.openSet.find(n => n.x === nx && n.y === ny);
+  if (!existing) state.openSet.push({ x: nx, y: ny, g, h: heuristic(nx, ny, state.ex, state.ey), f: g + heuristic(nx, ny, state.ex, state.ey), parent });
+  else if (g < existing.g) { existing.g = g; existing.f = g + existing.h; existing.parent = parent; }
+}
+function addBfs(state, nx, ny, parent) {
+  let nkey = getKey(nx, ny);
+  if (state.visitedS.has(nkey)) return;
+  state.visitedS.add(nkey);
+  state.queue.push({ x: nx, y: ny, path: parent.path.concat([{ x: nx, y: ny }]) });
+}
+function addDfs(state, nx, ny, parent) {
+  let nkey = getKey(nx, ny);
+  if (state.visitedS.has(nkey)) return;
+  state.visitedS.add(nkey);
+  state.stack.push({ x: nx, y: ny, path: parent.path.concat([{ x: nx, y: ny }]) });
+}
 
 function togglePath() {
   showPath = !showPath;
@@ -894,19 +1538,78 @@ function exportMaze() {
   link.click();
 }
 
+// ─── CANVAS CLICK FOR START/END PLACEMENT ───────────────────────────────────
+canvas.addEventListener('click', (e) => {
+  if (genPhase !== 'done') return;
+  if (!placingMode) return;
+  let rect = canvas.getBoundingClientRect();
+  let mx = e.clientX - rect.left;
+  let my = e.clientY - rect.top;
+  cellSize = Math.floor(Math.min(W / COLS, H / ROWS));
+  let offsetX = Math.floor((W - COLS * cellSize) / 2);
+  let offsetY = Math.floor((H - ROWS * cellSize) / 2);
+  let cx = Math.floor((mx - offsetX) / cellSize);
+  let cy = Math.floor((my - offsetY) / cellSize);
+  if (cx < 0 || cx >= COLS || cy < 0 || cy >= ROWS) return;
+  if (placingMode === 'start') {
+    startCell = { x: cx, y: cy };
+    maze[cy][cx].isStart = true;
+    if (endCell && endCell.x === cx && endCell.y === cy) { endCell = null; maze[ROWS-1][COLS-1].isEnd = true; endCell = { x: COLS-1, y: ROWS-1 }; }
+    showModeHint('START placed at (' + cx + ',' + cy + ')');
+  } else if (placingMode === 'end') {
+    endCell = { x: cx, y: cy };
+    maze[cy][cx].isEnd = true;
+    if (startCell && startCell.x === cx && startCell.y === cy) { startCell = null; maze[0][0].isStart = true; startCell = { x: 0, y: 0 }; }
+    showModeHint('END placed at (' + cx + ',' + cy + ')');
+  }
+  placingMode = null;
+  solutionPath = [];
+  solvePhase = 'idle';
+  document.getElementById('solveName').textContent = '—';
+  document.getElementById('solveTime').textContent = '—';
+  document.getElementById('pathLen').textContent = '—';
+  clearSolveButtons();
+  draw();
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (genPhase !== 'done') return;
+  if (!placingMode) return;
+  let rect = canvas.getBoundingClientRect();
+  let mx = e.clientX - rect.left;
+  let my = e.clientY - rect.top;
+  cellSize = Math.floor(Math.min(W / COLS, H / ROWS));
+  let offsetX = Math.floor((W - COLS * cellSize) / 2);
+  let offsetY = Math.floor((H - ROWS * cellSize) / 2);
+  let cx = Math.floor((mx - offsetX) / cellSize);
+  let cy = Math.floor((my - offsetY) / cellSize);
+  if (cx < 0 || cx >= COLS || cy < 0 || cy >= ROWS) return;
+  draw();
+  // Highlight hovered cell
+  let { px, py } = getCellPos(cx, cy);
+  ctx.fillStyle = placingMode === 'start' ? 'rgba(0,255,136,0.4)' : 'rgba(255,68,102,0.4)';
+  ctx.fillRect(offsetX + px + 2, offsetY + py + 2, cellSize - 4, cellSize - 4);
+});
+
+function setStartMode() { placingMode = placingMode === 'start' ? null : 'start'; showModeHint(placingMode ? 'CLICK MAZE to set START' : 'CANCELLED'); draw(); }
+function setEndMode() { placingMode = placingMode === 'end' ? null : 'end'; showModeHint(placingMode ? 'CLICK MAZE to set END' : 'CANCELLED'); draw(); }
+
 document.addEventListener('keydown', (e) => {
   if (e.key === '1') { setGenAlgo('backtrack'); generate(); }
   else if (e.key === '2') { setGenAlgo('prim'); generate(); }
-  else if (e.key === '3') solve('astar');
-  else if (e.key === '4') solve('bfs');
-  else if (e.key === '5') solve('dfs');
-  else if (e.key === '6') solve('dijkstra');
+  else if (e.key === '3') { setGenAlgo('division'); generate(); }
+  else if (e.key === '4') solve('astar');
+  else if (e.key === '5') solve('bfs');
+  else if (e.key === '6') solve('dfs');
+  else if (e.key === '7') solve('dijkstra');
   else if (e.key === 'p' || e.key === 'P') togglePath();
   else if (e.key === 'e' || e.key === 'E') exportMaze();
   else if (e.key === 'r' || e.key === 'R') { initMaze(); draw(); }
   else if (e.key === 'f' || e.key === 'F') { if (genPhase === 'generating') finishGen(); else if (solvePhase === 'solving') finishSolve(); }
   else if (e.key === '+' || e.key === '=') { speed = Math.min(20, speed + 2); document.getElementById('speedSlider').value = speed; stepsPerFrame = speed; }
   else if (e.key === '-') { speed = Math.max(1, speed - 2); document.getElementById('speedSlider').value = speed; stepsPerFrame = speed; }
+  else if (e.key === 't' || e.key === 'T') cycleTheme();
+  else if (e.key === 'c' || e.key === 'C') toggleCompare();
 });
 
 window.addEventListener('resize', () => { resize(); draw(); });
